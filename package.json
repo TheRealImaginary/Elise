@@ -1,0 +1,22 @@
+{
+  "name": "elise",
+  "version": "1.0.0",
+  "description": "A bot for discord.",
+  "main": "elise.js",
+  "scripts": {
+    "start": "node elise.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "bot",
+    "discord.js",
+    "nodejs",
+    "discord"
+  ],
+  "author": "Mazen Magdy",
+  "license": "",
+  "dependencies": {
+    "discord.js": "^11.0.0",
+    "xml2js": "^0.4.17"
+  }
+}
