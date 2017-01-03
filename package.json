@@ -16,6 +16,7 @@
   "author": "Mazen Magdy",
   "license": "",
   "dependencies": {
+    "chrono-node": "^1.2.5",
     "discord.js": "github:hydrabolt/discord.js#indev-prism",
     "erlpack": "github:hammerandchisel/erlpack",
     "xml2js": "^0.4.17"
