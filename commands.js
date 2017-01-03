@@ -1,3 +1,5 @@
+"use strict";
+
 /*Constants*/
 const RichEmbed = require('discord.js').RichEmbed;
 const chrono = require('chrono-node');
