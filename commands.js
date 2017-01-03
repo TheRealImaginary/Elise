@@ -4,7 +4,7 @@
 const RichEmbed = require('discord.js').RichEmbed;
 const chrono = require('chrono-node');
 const fs = require('fs');
-const config = require('./config.json');
+//const config = require('./config.json');
 const randomizer = require('./randomizer');
 const currencyManager = require('./currencyManager');
 const weather = require('./weather');
@@ -15,8 +15,8 @@ const commandPermissions = {
 	OWNER: 10
 };
 
-var PREFIX = config.prefix;
-var OWNER = config.owner;
+var PREFIX = process.env.PREFIX;
+var OWNER = 'Blargyy';
 
 //TODO : Library for formating below string(common-tags)
 //Add AFK time?
