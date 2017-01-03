@@ -3,7 +3,7 @@ const RichEmbed = require('discord.js').RichEmbed;
 const chrono = require('chrono-node');
 const fs = require('fs');
 const config = require('./config.json');
-const gameRandomizer = require('./gameRandomizer');
+const randomizer = require('./randomizer');
 const currencyManager = require('./currencyManager');
 const weather = require('./weather');
 const getRandomQuotes = require('./quotes');
@@ -123,7 +123,7 @@ var commands = {
 		hidden: false,
 		permissions: commandPermissions.USER,
 		executor: function(message) {
-			var game = gameRandomizer(message.content.substring(PREFIX.length + 7));
+			var game = randomizer(message.content.substring(PREFIX.length + 7));
 			if (!game)
 				message.channel.sendMessage("You didn't give me anything to choose from :(!");
 			else
