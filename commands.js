@@ -15,7 +15,7 @@ const commandPermissions = {
 	OWNER: 10
 };
 
-var PREFIX = process.env.PREFIX;
+var PREFIX = process.env.prefix;
 var OWNER = 'Blargyy';
 
 //TODO : Library for formating below string(common-tags)
