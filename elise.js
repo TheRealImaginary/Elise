@@ -11,7 +11,7 @@ const commands = commandStuff.commands;
 const TOKEN = process.env.TOKEN;
 // const LOG_FILE = config.log_file;
 // const GENERAL_CHANNEL_NAME = config.general_channel_name;
-const PREFIX = process.env.PREFIX;
+const PREFIX = process.env.prefix;
 
 // const console = new console.Console(fs.createWriteStream(LOG_FILE));
 
@@ -28,12 +28,12 @@ var started;
 bot.on('ready', function() {
 	started = new Date();
 	console.log("Started Bot log.\nIt's Alive @ %s!", started);
-	console.log("Started Bot log.\nIt's Alive @ %s!\n", started);
+	//console.log("Started Bot log.\nIt's Alive @ %s!\n", started);
 });
 
 bot.on('disconnect', function() {
 	console.log('Bot has disconnected!\nProcess Terminated\nUptime DiscordJS : %s | Me : %s\n', bot.uptime, new Date() - started);
-	console.log('Bot has disconnected!\nProcess Terminated\nUptime DiscordJS : %s | Me : %s\n', bot.uptime, new Date() - started);
+	//console.log('Bot has disconnected!\nProcess Terminated\nUptime DiscordJS : %s | Me : %s\n', bot.uptime, new Date() - started);
 });
 
 bot.on('error', function(error) {
