@@ -1,6 +1,6 @@
 /*yahoo, normal*/
 var http = require('http');
-const API_ID = require('./config.json').weather_api;
+const API_ID = process.env.weather_api;
 
 var getWeather = function(city, callBack) {
 	var options = {
