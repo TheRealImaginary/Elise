@@ -1,5 +1,5 @@
 var randomizer = function(list) {
-	list = games.split(',');
+	list = list.split(',');
 	if (!list || !list.length)
 		return null;
 	return list[getRandom(0, list.length)];
