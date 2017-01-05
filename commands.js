@@ -218,7 +218,7 @@ var commands = {
 			}
 			var parsed = chrono.parse(timeAndData[0]);
 			//console.log(parsed);
-			if (!parsed || parsed == [] || !parsed[0].start || parsed[0].start == {}) {
+			if (!parsed || parsed == [] || !parsed[0] || !parsed[0].start || parsed[0].start == {}) {
 				message.channel.sendMessage('I had trouble understanding that.');
 				return;
 			}
