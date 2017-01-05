@@ -19,7 +19,7 @@ const TOKEN = process.env.TOKEN || config.TOKEN;
 // const LOG_FILE = config.log_file;
 // const GENERAL_CHANNEL_NAME = config.general_channel_name;
 const PREFIX = process.env.PREFIX || config.PREFIX;
-const games = ['CSGO', 'StarCraft', 'HotS', 'LotV', 'WoW Level 120', 'LoL', 'With You', 'With Yarn'];
+const games = ['CSGO', 'StarCraft', 'HotS', 'LotV', 'WoW Level 120', 'LoL', 'With You', 'With Yarn', 'Webs'];
 
 // const console = new console.Console(fs.createWriteStream(LOG_FILE));
 
@@ -38,7 +38,9 @@ bot.commandsExecuted = 0;
 var started;
 
 bot.on('ready', function() {
-	setInterval(setStatus, 3600, bot);
+	console.log(bot.guilds.first().available);
+	setStatus(bot);
+	setInterval(setStatus, 3600000, bot);
 	started = new Date();
 	console.log("Started Bot log.\nIt's Alive @ %s!", started);
 	//console.log("Started Bot log.\nIt's Alive @ %s!\n", started);
@@ -131,9 +133,15 @@ bot.on('voiceStateUpdate', voiceStateUpdateHandler);
 bot.on('guildCreate', function(guild) {
 	console.log('Joined A Guild');
 	console.log(guild);
-	if (guild.availble) {
+	//console.log(guild.available, guild.defaultChannel);
+	if (guild.available) {
 		guild.defaultChannel.sendMessage(`Welcome humans, I am here ~~to take over your server~~ so we can have fun together.Send "${PREFIX}help" for a list of availble commands!`);
 	}
+});
+
+bot.on('guildDelete', function(guild) {
+	console.log('Left A Guild!');
+	console.log(guild);
 });
 
 bot.login(TOKEN);

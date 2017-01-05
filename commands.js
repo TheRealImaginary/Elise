@@ -312,7 +312,7 @@ var commands = {
 		permissions: commandPermissions.OWNER,
 		executor: function(message) {
 			if (!checkOwner(message)) {
-				message.channel.sendMessage('You cannot do that!');
+				message.channel.sendMessage('You don\'t have enough juice!');
 				return;
 			}
 			message.reply(`You have ${currencyManagerInstance.get(message.author)} ${currencyManager.currency_name}`);
@@ -327,7 +327,7 @@ var commands = {
 		permissions: commandPermissions.OWNER,
 		executor: function(message) {
 			if (!checkOwner(message)) {
-				message.channel.sendMessage('You cannot do that!');
+				message.channel.sendMessage('You don\'t have enough juice!');
 				return;
 			}
 			var newAmount = currencyManagerInstance.add(message.author, 50);
@@ -342,7 +342,7 @@ var commands = {
 		permissions: commandPermissions.OWNER,
 		executor: function(message) {
 			if (!checkOwner(message)) {
-				message.channel.sendMessage('You cannot do that!');
+				message.channel.sendMessage('You don\'t have enough juice!');
 				return;
 			}
 			var response = currencyManagerInstance.spend(message.author, 10);
@@ -361,7 +361,7 @@ var commands = {
 		permissions: commandPermissions.OWNER,
 		executor: function(message) {
 			if (!checkOwner(message)) {
-				message.channel.sendMessage('You cannot do that!');
+				message.channel.sendMessage('You don\'t have enough juice!');
 				return;
 			}
 			currencyManager.setName(message.content.substring(19).trim());
@@ -375,7 +375,7 @@ var commands = {
 		permissions: commandPermissions.OWNER,
 		executor: function(message) {
 			if (!checkOwner(message)) {
-				message.channel.sendMessage('You cannot do that!');
+				message.channel.sendMessage('You don\'t have enough juice!');
 				return;
 			}
 			currencyManager.setSymbol(message.content.substring(21).trim());
@@ -389,7 +389,7 @@ var commands = {
 		permissions: commandPermissions.OWNER,
 		executor: function(message, bot) {
 			if (!checkOwner(message)) {
-				message.channel.sendMessage('You cannot do that!');
+				message.channel.sendMessage('You don\'t have enough juice!');
 				return;
 			}
 			bot.isASleep = true;
@@ -404,7 +404,7 @@ var commands = {
 		permissions: commandPermissions.OWNER,
 		executor: function(message, bot) {
 			if (!checkOwner(message)) {
-				message.channel.sendMessage('You cannot do that!');
+				message.channel.sendMessage('You don\'t have enough juice!');
 				return;
 			}
 			bot.isASleep = false;
@@ -470,16 +470,42 @@ var commands = {
 		permissions: commandPermissions.OWNER,
 		executor: function(message, bot) {
 			if (!checkOwner(message)) {
-				message.channel.sendMessage('You cannot do that!');
+				message.channel.sendMessage('You don\'t have enough juice!');
 				return;
 			}
 			var permissions = message.content.split(' ').slice(1);
 			if (permissions)
-				bot.generateInvite(permissions).then(function(invite) {
-					//logger.log('Invite Created With Permissions ' + permissions);
-					console.log('Invite Created With Permissions ' + (permissions.length == 0 ? 'NO PERMISSIONS' : permissions));
-					message.channel.sendMessage(invite);
-				}).catch(console.err);
+				console.log(permissions);
+			bot.generateInvite(permissions).then(function(invite) {
+				//logger.log('Invite Created With Permissions ' + permissions);
+				console.log('Invite Created With Permissions ' + (permissions.length == 0 ? 'NO PERMISSIONS' : permissions));
+				message.channel.sendMessage(invite);
+			}).catch(console.err);
+		}
+	},
+	resetNickname: {
+		name: 'Reset Nick',
+		usage: PREFIX + 'resetNick',
+		description: 'Resets Bot\'s Nickname',
+		hidden: true,
+		permissions: commandPermissions.OWNER,
+		executor: function(message, bot) {
+			if (!checkOwner(message, bot)) {
+				message.channel.sendMessage('You don\'t have enough juice!');
+				return;
+			}
+			var guilds = bot.guilds;
+			for (var [key, val] of guilds)
+				if (val == 'Ali\'s Room') {
+					console.log('Found it!');
+					var members = val.members;
+					for (var [k, v] of members)
+						if (v.user.username == bot.user.username) {
+							v.setNickname('Elise');
+							return;
+						}
+					console.log('Couldn\'t Find myself!');
+				}
 		}
 	}
 };
