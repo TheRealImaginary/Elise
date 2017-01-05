@@ -4,7 +4,6 @@
 const RichEmbed = require('discord.js').RichEmbed;
 const chrono = require('chrono-node');
 const fs = require('fs');
-//const config = require('./config.json');
 const randomizer = require('./randomizer');
 const currencyManager = require('./currencyManager');
 const weather = require('./weather');
@@ -14,9 +13,17 @@ const commandPermissions = {
 	USER: 0,
 	OWNER: 10
 };
+var config;
+try {
+	config = require('./config.json');
+} catch (err) {
+	config = {};
+	console.log('Couldn\'t find config.');
+	console.log(err);
+}
 
-var PREFIX = process.env.prefix;
-var OWNER = 'Blargyy';
+var PREFIX = process.env.prefix || config.PREFIX;
+var OWNER = process.env.OWNER || config.OWNER;
 
 //TODO : Library for formating below string(common-tags)
 //Add AFK time?
@@ -163,6 +170,7 @@ var commands = {
 		hidden: false,
 		permissions: commandPermissions.USER,
 		executor: function(message, bot) {
+			console.log(bot.commandsExecuted);
 			message.channel.sendEmbed(getBotStatus(bot));
 		}
 	},
@@ -403,31 +411,31 @@ var commands = {
 			message.channel.sendMessage('I am awake, I am awake!');
 		}
 	},
-	changeOwner: {
-		name: 'Change Owner',
-		usage: PREFIX + 'changeOwner <newName>',
-		description: 'Changes Owner in config file',
-		hidden: true,
-		permissions: commandPermissions.OWNER,
-		executor: function(message) {
-			if (!checkOwner(message)) {
-				message.channel.sendMessage('You cannot do that!');
-				return;
-			}
-			config.owner = message.content.split(' ')[1].trim();
-			fs.writeFile('./config.json', JSON.stringify(config), function(err) {
-				if (err) {
-					config.owner = OWNER;
-					//console.log('An Error Occurred Changing Owner!');
-					//console.log(err);
-					return;
-				}
-				OWNER = config.owner;
-				//console.log('Owner Saved And Changed Successfully!');
-				message.channel.sendMessage('Owner Changed Successfully!');
-			});
-		}
-	},
+	// changeOwner: {
+	// 	name: 'Change Owner',
+	// 	usage: PREFIX + 'changeOwner <newName>',
+	// 	description: 'Changes Owner in config file',
+	// 	hidden: true,
+	// 	permissions: commandPermissions.OWNER,
+	// 	executor: function(message) {
+	// 		if (!checkOwner(message)) {
+	// 			message.channel.sendMessage('You cannot do that!');
+	// 			return;
+	// 		}
+	// 		config.owner = message.content.split(' ')[1].trim();
+	// 		fs.writeFile('./config.json', JSON.stringify(config), function(err) {
+	// 			if (err) {
+	// 				config.owner = OWNER;
+	// 				//console.log('An Error Occurred Changing Owner!');
+	// 				//console.log(err);
+	// 				return;
+	// 			}
+	// 			OWNER = config.owner;
+	// 			//console.log('Owner Saved And Changed Successfully!');
+	// 			message.channel.sendMessage('Owner Changed Successfully!');
+	// 		});
+	// 	}
+	// },
 	//TODO: Need to change prefix in other file(globaly)
 	// changePrefix: {
 	// 	name: 'Change Prefix',

@@ -1,11 +1,11 @@
 var fs = require('fs');
 const SAVE_PATH = './currency.json';
 var saved_data;
-load();
 
 //TODO : Save users in file/db.
 var currencyManager = function() {
 	this.users = {};
+	load();
 	if (saved_data)
 		this.users = saved_data;
 };
