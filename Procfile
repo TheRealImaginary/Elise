@@ -1,1 +1,1 @@
-worker: node elise.js
+worker: npm start

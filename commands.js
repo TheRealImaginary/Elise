@@ -22,7 +22,7 @@ try {
 	console.log(err);
 }
 
-var PREFIX = process.env.prefix || config.PREFIX;
+var PREFIX = process.env.PREFIX || config.PREFIX;
 var OWNER = process.env.OWNER || config.OWNER;
 
 //TODO : Library for formating below string(common-tags)

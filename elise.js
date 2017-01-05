@@ -18,7 +18,7 @@ try {
 const TOKEN = process.env.TOKEN || config.TOKEN;
 // const LOG_FILE = config.log_file;
 // const GENERAL_CHANNEL_NAME = config.general_channel_name;
-const PREFIX = process.env.prefix || config.PREFIX;
+const PREFIX = process.env.PREFIX || config.PREFIX;
 const games = ['CSGO', 'StarCraft', 'HotS', 'LotV', 'WoW Level 120', 'LoL', 'With You', 'With Yarn'];
 
 // const console = new console.Console(fs.createWriteStream(LOG_FILE));
