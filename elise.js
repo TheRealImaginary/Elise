@@ -38,7 +38,6 @@ bot.commandsExecuted = 0;
 var started;
 
 bot.on('ready', function() {
-	console.log(bot.guilds.first().available);
 	setStatus(bot);
 	setInterval(setStatus, 3600000, bot);
 	started = new Date();
