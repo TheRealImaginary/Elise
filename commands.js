@@ -25,6 +25,11 @@ try {
 
 var PREFIX = process.env.PREFIX || config.PREFIX;
 var OWNER = process.env.OWNER || config.OWNER;
+var jailChannel, normalChannel;
+
+var Cleverbot = require('cleverbot-node');
+Cleverbot.prepare(function() {});
+var cleverbot = new Cleverbot();
 
 //TODO : Library for formating below string(common-tags)
 //Add AFK time?
@@ -365,14 +370,107 @@ var commands = {
 			if (guild.available) {
 				var guildMember = guild.member(user);
 				if (!guildMember) {
-				message.channel.sendMessage(`Couldn't find a member with that name!`);
-				return;
-			}
+					message.channel.sendMessage(`Couldn't find a member with that name!`);
+					return;
+				}
 				guildMember.setMute(false).then(function(member) {
 					console.log(`${member.user.username} got unmuted by ${message.author.username}.`);
 				}).catch(console.err);
 			} else
 				console.log('Guild isnot available for unmuting a member!');
+		}
+	},
+	jail: {
+		name: 'Jail',
+		usage: PREFIX + 'jail <@member>',
+		description: 'Jails A Member',
+		hidden: false,
+		executor: function(message) {
+			if (!checkPermissions(message, 'MOVE_MEMBERS')) {
+				message.channel.sendMessage(`You don't have enough juice!`);
+				return;
+			}
+			var user = message.mentions.users.first();
+			console.log(user);
+			var guild = message.guild;
+			if (guild.available) {
+				var guildMember = guild.member(user);
+				if (!guildMember) {
+					message.channel.sendMessage(`Couldn't find a member with that name!`);
+					return;
+				}
+				if (!guildMember.voiceChannel) {
+					message.channel.sendMessage(`Member isn't in a voice channel.`);
+					return;
+				}
+				if (!normalChannel)
+					normalChannel = guildMember.voiceChannel;
+				if (!jailChannel) {
+					var voiceChannels = guild.channels;
+					for (var [key, val] of voiceChannels) {
+						if (val.name.toLowerCase() === 'jail') {
+							jailChannel = val;
+							break;
+						}
+					}
+					if (!jailChannel) {
+						message.channel.sendMessage(`I can't find Jail.`);
+						return;
+					}
+				}
+				guildMember.setVoiceChannel(jailChannel);
+			} else
+				console.log('Guild isnot available for jailing a member!');
+		}
+	},
+	free: {
+		name: 'Free',
+		usage: PREFIX + 'free <@member>',
+		description: 'Frees someone from jail',
+		hidden: false,
+		executor: function(message) {
+			if (!checkPermissions(message, 'MOVE_MEMBERS')) {
+				message.channel.sendMessage(`You don't have enough juice!`);
+				return;
+			}
+			var user = message.mentions.users.first();
+			console.log(user);
+			var guild = message.guild;
+			if (guild.available) {
+				if (!guildMember) {
+					message.channel.sendMessage(`Couldn't find a member with that name!`);
+					return;
+				}
+				if (!guildMember.voiceChannel) {
+					message.channel.sendMessage(`Member isn't in a voice channel.`);
+					return;
+				}
+				if (guildMember.voiceChannel.name.toLowerCase() !== 'jail') {
+					message.channel.sendMessage(`Member isn't in jail.`);
+					return;
+				}
+				guildMember.setVoiceChannel(normalChannel);
+			} else
+				console.log('Guild isnot available for free-ing a member!');
+		}
+	},
+	//Uses cleverbot API <3
+	chat: {
+		name: 'Chat with me',
+		usage: PREFIX + 'chat <message>',
+		description: 'Want to play the imitation game?!',
+		hidden: false,
+		executor: function(message) {
+			var content = message.content.split(' ').slice(1);
+			console.log(content);
+			cleverbot.write(content, function(response) {
+				console.log(response);
+				if (!response.message || response.message === '') {
+					console.log(`Cleverbot didn't reponsd`);
+					return;
+				}
+				message.channel.sendMessage(response.message);
+			});
 		}
 	},
 	juice: {
