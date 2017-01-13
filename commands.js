@@ -359,15 +359,15 @@ var commands = {
 				message.channel.sendMessage(`You don't have enough juice!`);
 				return;
 			}
-			if (!guildMember) {
-				message.channel.sendMessage(`Couldn't find a member with that name!`);
-				return;
-			}
 			var user = message.mentions.users.first();
 			console.log(user);
 			var guild = message.guild;
 			if (guild.available) {
 				var guildMember = guild.member(user);
+				if (!guildMember) {
+				message.channel.sendMessage(`Couldn't find a member with that name!`);
+				return;
+			}
 				guildMember.setMute(false).then(function(member) {
 					console.log(`${member.user.username} got unmuted by ${message.author.username}.`);
 				}).catch(console.err);
