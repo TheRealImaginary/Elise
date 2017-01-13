@@ -321,7 +321,7 @@ var commands = {
 	},
 	mute: {
 		name: 'Mute',
-		usage: PREFIX + 'mute',
+		usage: PREFIX + 'mute <@member>',
 		description: 'Mutes A Member',
 		hidden: false,
 		executor: function(message) {
@@ -334,6 +334,10 @@ var commands = {
 			var guild = message.guild;
 			if (guild.available) {
 				var guildMember = guild.member(user);
+				if (!guildMember) {
+					message.channel.sendMessage(`Couldn't find a member with that name!`);
+					return;
+				}
 				if (guildMember.selfMute || guildMember.selfDeaf) {
 					message.channel.sendMessage(`Member is already muted/deafen.`);
 					return;
@@ -347,12 +351,16 @@ var commands = {
 	},
 	unmute: {
 		name: 'Unmute',
-		usage: PREFIX + 'unmute',
+		usage: PREFIX + 'unmute <@member>',
 		description: 'Unmutes A Member',
 		hidden: false,
 		executor: function(message) {
 			if (!checkPermissions(message, 'MUTE_MEMBERS')) {
 				message.channel.sendMessage(`You don't have enough juice!`);
+				return;
+			}
+			if (!guildMember) {
+				message.channel.sendMessage(`Couldn't find a member with that name!`);
 				return;
 			}
 			var user = message.mentions.users.first();
