@@ -19,7 +19,7 @@ const TOKEN = process.env.TOKEN || config.TOKEN;
 // const LOG_FILE = config.log_file;
 // const GENERAL_CHANNEL_NAME = config.general_channel_name;
 const PREFIX = process.env.PREFIX || config.PREFIX;
-const games = ['CSGO', 'StarCraft', 'HotS', 'LotV', 'WoW Level 120', 'LoL', 'With You', 'With Yarn', 'Webs'];
+const games = ['CSGO', 'StarCraft', 'HotS', 'LotV', 'WoW Level 120', 'LoL', 'With You', 'With Yarn', 'With Webs', 'The Botfather', 'HL3', 'L4D3', 'DOTA 2'];
 
 // const console = new console.Console(fs.createWriteStream(LOG_FILE));
 
@@ -56,7 +56,7 @@ bot.on('error', function(error) {
 	console.log(error);
 	console.log('/*************************************/');
 });
-//TODO : Maybe print a message if asleep?
+//TODO : Maybe send a message if asleep?
 var messageHandler = function(message) {
 	if (message.author.bot) {
 		return;
@@ -76,7 +76,6 @@ var messageHandler = function(message) {
 			console.log(err);
 		});
 	} else if (message.content.startsWith(PREFIX)) {
-		//console.log('Command Detected');
 		console.log('Command Detected!');
 		var cmd = commands[message.content.split(' ')[0].substring(PREFIX.length)];
 		if (cmd) {
@@ -115,8 +114,6 @@ bot.on('messageUpdate', function(oldMessage, newMessage) {
 		//console.log(commands[message.content.split(' ')[0].substring(1)]);
 	}
 	console.log('Message Update From Old : %s \nNew : %s\n', oldMessage, newMessage);
-	if (Math.random() < 0.85)
-		newMessage.channel.sendMessage('Someone is smart enough to edit a message instead of re-writing it :)');
 });
 
 bot.on('messageDelete', function(deletedMessage) {

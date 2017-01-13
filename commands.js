@@ -4,13 +4,14 @@
 const RichEmbed = require('discord.js').RichEmbed;
 const chrono = require('chrono-node');
 const fs = require('fs');
-const randomizer = require('./randomizer');
-const currencyManager = require('./currencyManager');
-const weather = require('./weather');
-const getRandomQuotes = require('./quotes');
+const randomizer = require('./randomizer.js');
+const currencyManager = require('./currencyManager.js');
+const weather = require('./weather.js');
+const quotes = require('./quotes.js');
 const currencyManagerInstance = new currencyManager();
 const commandPermissions = {
 	USER: 0,
+	ADMIN: 5,
 	OWNER: 10
 };
 var config;
@@ -109,6 +110,10 @@ function checkOwner(message) {
 	return message.author.username === OWNER;
 };
 
+function checkPermissions(message, permission) {
+	return message.member.permissions.hasPermission(permission);
+};
+
 var commands = {
 	help: {
 		name: 'Help',
@@ -127,16 +132,20 @@ var commands = {
 	},
 	random: {
 		name: 'Randomizer',
-		usage: PREFIX + 'random <game1,game2,game3>',
-		description: 'Use to get a random choice from the given list of games.',
+		usage: PREFIX + 'random <item1,item2,item3>',
+		description: 'Use to get a random choice from the given list.',
 		hidden: false,
 		permissions: commandPermissions.USER,
 		executor: function(message) {
 			var game = randomizer(message.content.substring(PREFIX.length + 7));
 			if (!game)
 				message.channel.sendMessage("You didn't give me anything to choose from :(!");
-			else
-				message.channel.sendMessage('The Random game is ' + game.trim());
+			else {
+				if (Math.random() < 0.5)
+					message.channel.sendMessage('The Random choice is ' + game.trim());
+				else
+					message.channel.sendMessage(`Go ${game.trim()}, I choose you.`);
+			}
 		}
 	},
 	//TODO : **Is it error proof? **extend to IDs aswell (start from weather file)?
@@ -185,6 +194,7 @@ var commands = {
 		}
 	},
 	//It would only work in GuildChat NOT Private Chat, maybe find a work around ?
+	//Also Maybe In Private chat it works only for both participants
 	memberinfo: {
 		name: 'Member Info',
 		usage: PREFIX + 'memberinfo <name>',
@@ -224,6 +234,11 @@ var commands = {
 			}
 			var ms = parsed[0].start.date() - new Date(),
 				context = timeAndData.slice(1).join(' ') || '';
+			if (ms < 0) {
+				var timeQuotes = quotes.getTimeQuote();
+				message.channel.sendMessage(`${timeQuotes.quote} ~${timeQuotes.author}.`);
+				return;
+			}
 			message.channel.sendMessage(`I will remind you in ${ms} ms in a DM. Do the math human.`);
 			setTimeout(function() {
 				if (context == '')
@@ -266,12 +281,12 @@ var commands = {
 	dice: {
 		name: 'Dice Roll',
 		usage: PREFIX + 'dice <faces>',
-		description: 'Rolls a nice with \'n\' Faces.',
+		description: 'Rolls a dice with \'n\' Faces.',
 		hidden: false,
 		permissions: commandPermissions.USER,
 		executor: function(message) {
 			var faces = message.content.split(' ')[1];
-			if (!faces || faces === ' ')
+			if (!faces || faces === ' ' || faces <= 0)
 				faces = 6;
 			var die = Math.floor(Math.random() * faces) + 1;
 			if (Math.random() < 0.8)
@@ -287,7 +302,7 @@ var commands = {
 		hidden: false,
 		permissions: commandPermissions.USER,
 		executor: function(message) {
-			getRandomQuotes(function(err, statusCode, quote) {
+			quotes.getRandomQuote(function(err, statusCode, quote) {
 				if (err) {
 					message.channel.sendMessage('Error parsing data!');
 					//console.log('Error Parsing Quote Data');
@@ -302,6 +317,63 @@ var commands = {
 					message.channel.sendMessage("\"" + quoteObj.quoteText[0] + `\"~${quoteObj.quoteAuthor[0]}`);
 				}
 			});
+		}
+	},
+	mute: {
+		name: 'Mute',
+		usage: PREFIX + 'mute',
+		description: 'Mutes A Member',
+		hidden: false,
+		executor: function(message) {
+			if (!checkPermissions(message, 'MUTE_MEMBERS')) {
+				message.channel.sendMessage(`You don't have enough juice!`);
+				return;
+			}
+			var user = message.mentions.users.first();
+			console.log(user);
+			var guild = message.guild;
+			if (guild.available) {
+				var guildMember = guild.member(user);
+				if (guildMember.selfMute || guildMember.selfDeaf) {
+					message.channel.sendMessage(`Member is already muted/deafen.`);
+					return;
+				}
+				guildMember.setMute(true).then(function(member) {
+					console.log(`${member.user.username} got muted by ${message.author.username}.`);
+				}).catch(console.err);
+			} else
+				console.log('Guild isnot available for muting a member!');
+		}
+	},
+	unmute: {
+		name: 'Unmute',
+		usage: PREFIX + 'unmute',
+		description: 'Unmutes A Member',
+		hidden: false,
+		executor: function(message) {
+			if (!checkPermissions(message, 'MUTE_MEMBERS')) {
+				message.channel.sendMessage(`You don't have enough juice!`);
+				return;
+			}
+			var user = message.mentions.users.first();
+			console.log(user);
+			var guild = message.guild;
+			if (guild.available) {
+				var guildMember = guild.member(user);
+				guildMember.setMute(false).then(function(member) {
+					console.log(`${member.user.username} got unmuted by ${message.author.username}.`);
+				}).catch(console.err);
+			} else
+				console.log('Guild isnot available for unmuting a member!');
+		}
+	},
+	juice: {
+		name: 'Juice',
+		usage: PREFIX + 'juice',
+		description: 'Trolls the user',
+		hidden: true,
+		executor: function(message) {
+			message.channel.sendMessage(`You don't have enough juice to get juice!`);
 		}
 	},
 	money: {
@@ -347,8 +419,7 @@ var commands = {
 			}
 			var response = currencyManagerInstance.spend(message.author, 10);
 			if (!response.success)
-				message.reply(`
-			You don 't have enough ${currencyManager.currency_name}`);
+				message.reply(`You don't have enough ${currencyManager.currency_name}`);
 			else
 				message.reply(`You now have ${response.amount} ${currencyManager.currency_name}`);
 		}

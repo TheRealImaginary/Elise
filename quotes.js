@@ -1,5 +1,7 @@
 var http = require('http');
 var xml2js = require('xml2js');
+const quotes = require('./quotes.json');
+const randomizer = require('./randomizer.js');
 
 function getRandomQuote(callBack) {
 
@@ -29,4 +31,11 @@ function getRandomQuote(callBack) {
 	request.end();
 };
 
-module.exports = getRandomQuote;
+function getTimeQuote() {
+	return randomizer(quotes);
+};
+
+module.exports = {
+	getRandomQuote,
+	getTimeQuote
+};
