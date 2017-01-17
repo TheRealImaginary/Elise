@@ -4,6 +4,7 @@
 const RichEmbed = require('discord.js').RichEmbed;
 const chrono = require('chrono-node');
 const fs = require('fs');
+const ytdl = require('ytdl-core');
 const randomizer = require('./commands/randomizer.js');
 const currencyManager = require('./currencyManager.js');
 const weather = require('./commands/weather.js');
@@ -25,7 +26,7 @@ try {
 
 var PREFIX = process.env.PREFIX || config.PREFIX;
 var OWNER = process.env.OWNER || config.OWNER;
-var jailChannel, normalChannel;
+var jailChannel, normalChannel, musicChannel, musicConnection, musicDispatcher;
 
 var Cleverbot = require('cleverbot-node');
 Cleverbot.prepare(function() {});
@@ -678,23 +679,77 @@ var commands = {
 				message.channel.sendMessage('Works Only in guild!');
 				return;
 			}
-			var voiceChannel = member.voiceChannel;
-			if (!voiceChannel) {
+			musicChannel = member.voiceChannel;
+			if (!musicChannel) {
 				message.channel.sendMessage('You Must be in a voice channel to use this.');
 				return;
 			}
-			if (!voiceChannel.joinable) {
+			if (!musicChannel.joinable) {
 				message.channel.sendMessage('You Must be in a joinable voice channel to use this.');
 				return;
 			}
-			voiceChannel.join().then(function(connection) {
-				var dispatcher = connection.playFile('./Billie Eilish - Ocean Eyes.mp3');
-				setTimeout(function() {
-					dispatcher.end();
-				}, 5000);
+			var stored = message.content.split(' ')[1] == null;
+			musicChannel.join().then(function(connection) {
+				musicConnection = connection;
+				if (stored) {
+					var stream = ytdl('https://www.youtube.com/watch?v=6Yr_gDLcX7Q', {
+						quality: 'lowest',
+						filter: 'audioonly'
+					});
+					musicDispatcher = connection.playStream(stream);
+				} else {
+					musicDispatcher = connection.playFile('./Billie Eilish - Ocean Eyes.mp3');
+				}
 			}).catch(console.log);
 		}
-	}
+	},
+	//TODO : handle corner cases
+	testPause: {
+		name: 'Test Pause',
+		usage: PREFIX + 'testPause',
+		description: 'For Testing Pause',
+		hidden: true,
+		executor: function(message) {
+			if (!checkOwner(message)) {
+				message.channel.sendMessage('You don\'t have enough juice.');
+				return;
+			}
+			if (musicDispatcher)
+				musicDispatcher.pause();
+		}
+	},
+	testResume: {
+		name: 'Test Resume',
+		usage: PREFIX + 'testResume',
+		description: 'For Testing Resume',
+		hidden: true,
+		executor: function(message) {
+			if (!checkOwner(message)) {
+				message.channel.sendMessage('You don\'t have enough juice.');
+				return;
+			}
+			if (musicDispatcher && musicDispatcher.paused)
+				musicDispatcher.resume();
+		}
+	},
+	testEnd: {
+		name: 'Test End',
+		usage: PREFIX + 'testEnd',
+		description: 'For Testing End',
+		hidden: true,
+
+		executor: function(message) {
+			if (!checkOwner(message)) {
+				message.channel.sendMessage('You don\'t have enough juice.');
+				return;
+			}
+			if (musicDispatcher) {
+				musicDispatcher.end();
+				musicConnection.disconnect();
+				musicChannel.leave();
+			}
+		}
+	},
 };
 
 module.exports = {
