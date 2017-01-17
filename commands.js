@@ -359,80 +359,80 @@ var commands = {
 				console.log('Guild isnot available for unmuting a member!');
 		}
 	},
-	jail: {
-		name: 'Jail',
-		usage: PREFIX + 'jail <@member>',
-		description: 'Jails A Member',
-		hidden: false,
-		executor: function(message) {
-			if (!checkPermissions(message, 'MOVE_MEMBERS')) {
-				message.channel.sendMessage(`You don't have enough juice!`);
-				return;
-			}
-			var user = message.mentions.users.first();
-			console.log(user);
-			var guild = message.guild;
-			if (guild.available) {
-				var guildMember = guild.member(user);
-				if (!guildMember) {
-					message.channel.sendMessage(`Couldn't find a member with that name!`);
-					return;
-				}
-				if (!guildMember.voiceChannel) {
-					message.channel.sendMessage(`Member isn't in a voice channel.`);
-					return;
-				}
-				if (!normalChannel)
-					normalChannel = guildMember.voiceChannel;
-				if (!jailChannel) {
-					var voiceChannels = guild.channels;
-					for (var [key, val] of voiceChannels) {
-						if (val.name.toLowerCase() === 'jail') {
-							jailChannel = val;
-							break;
-						}
-					}
-					if (!jailChannel) {
-						message.channel.sendMessage(`I can't find Jail.`);
-						return;
-					}
-				}
-				guildMember.setVoiceChannel(jailChannel);
-			} else
-				console.log('Guild isnot available for jailing a member!');
-		}
-	},
-	free: {
-		name: 'Free',
-		usage: PREFIX + 'free <@member>',
-		description: 'Frees someone from jail',
-		hidden: false,
-		executor: function(message) {
-			if (!checkPermissions(message, 'MOVE_MEMBERS')) {
-				message.channel.sendMessage(`You don't have enough juice!`);
-				return;
-			}
-			var user = message.mentions.users.first();
-			console.log(user);
-			var guild = message.guild;
-			if (guild.available) {
-				if (!guildMember) {
-					message.channel.sendMessage(`Couldn't find a member with that name!`);
-					return;
-				}
-				if (!guildMember.voiceChannel) {
-					message.channel.sendMessage(`Member isn't in a voice channel.`);
-					return;
-				}
-				if (guildMember.voiceChannel.name.toLowerCase() !== 'jail') {
-					message.channel.sendMessage(`Member isn't in jail.`);
-					return;
-				}
-				guildMember.setVoiceChannel(normalChannel);
-			} else
-				console.log('Guild isnot available for free-ing a member!');
-		}
-	},
+	// jail: {
+	// 	name: 'Jail',
+	// 	usage: PREFIX + 'jail <@member>',
+	// 	description: 'Jails A Member',
+	// 	hidden: false,
+	// 	executor: function(message) {
+	// 		if (!checkPermissions(message, 'MOVE_MEMBERS')) {
+	// 			message.channel.sendMessage(`You don't have enough juice!`);
+	// 			return;
+	// 		}
+	// 		var user = message.mentions.users.first();
+	// 		console.log(user);
+	// 		var guild = message.guild;
+	// 		if (guild.available) {
+	// 			var guildMember = guild.member(user);
+	// 			if (!guildMember) {
+	// 				message.channel.sendMessage(`Couldn't find a member with that name!`);
+	// 				return;
+	// 			}
+	// 			if (!guildMember.voiceChannel) {
+	// 				message.channel.sendMessage(`Member isn't in a voice channel.`);
+	// 				return;
+	// 			}
+	// 			if (!normalChannel)
+	// 				normalChannel = guildMember.voiceChannel;
+	// 			if (!jailChannel) {
+	// 				var voiceChannels = guild.channels;
+	// 				for (var [key, val] of voiceChannels) {
+	// 					if (val.name.toLowerCase() === 'jail') {
+	// 						jailChannel = val;
+	// 						break;
+	// 					}
+	// 				}
+	// 				if (!jailChannel) {
+	// 					message.channel.sendMessage(`I can't find Jail.`);
+	// 					return;
+	// 				}
+	// 			}
+	// 			guildMember.setVoiceChannel(jailChannel);
+	// 		} else
+	// 			console.log('Guild isnot available for jailing a member!');
+	// 	}
+	// },
+	// free: {
+	// 	name: 'Free',
+	// 	usage: PREFIX + 'free <@member>',
+	// 	description: 'Frees someone from jail',
+	// 	hidden: false,
+	// 	executor: function(message) {
+	// 		if (!checkPermissions(message, 'MOVE_MEMBERS')) {
+	// 			message.channel.sendMessage(`You don't have enough juice!`);
+	// 			return;
+	// 		}
+	// 		var user = message.mentions.users.first();
+	// 		console.log(user);
+	// 		var guild = message.guild;
+	// 		if (guild.available) {
+	// 			if (!guildMember) {
+	// 				message.channel.sendMessage(`Couldn't find a member with that name!`);
+	// 				return;
+	// 			}
+	// 			if (!guildMember.voiceChannel) {
+	// 				message.channel.sendMessage(`Member isn't in a voice channel.`);
+	// 				return;
+	// 			}
+	// 			if (guildMember.voiceChannel.name.toLowerCase() !== 'jail') {
+	// 				message.channel.sendMessage(`Member isn't in jail.`);
+	// 				return;
+	// 			}
+	// 			guildMember.setVoiceChannel(normalChannel);
+	// 		} else
+	// 			console.log('Guild isnot available for free-ing a member!');
+	// 	}
+	// },
 	//Uses cleverbot API <3
 	chat: {
 		name: 'Chat with me',
