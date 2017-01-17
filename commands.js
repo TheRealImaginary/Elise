@@ -4,10 +4,10 @@
 const RichEmbed = require('discord.js').RichEmbed;
 const chrono = require('chrono-node');
 const fs = require('fs');
-const randomizer = require('./randomizer.js');
+const randomizer = require('./commands/randomizer.js');
 const currencyManager = require('./currencyManager.js');
-const weather = require('./weather.js');
-const quotes = require('./quotes.js');
+const weather = require('./commands/weather.js');
+const quotes = require('./commands/quotes.js');
 const currencyManagerInstance = new currencyManager();
 const commandPermissions = {
 	USER: 0,
@@ -240,8 +240,9 @@ var commands = {
 			var ms = parsed[0].start.date() - new Date(),
 				context = timeAndData.slice(1).join(' ') || '';
 			if (ms < 0) {
-				var timeQuotes = quotes.getTimeQuote();
-				message.channel.sendMessage(`${timeQuotes.quote} ~${timeQuotes.author}.`);
+				quotes.getTimeQuote(function(result) {
+					message.channel.sendMessage(`${result.quote} ~${result.author}.`);
+				});
 				return;
 			}
 			message.channel.sendMessage(`I will remind you in ${ms} ms in a DM. Do the math human.`);
@@ -249,7 +250,7 @@ var commands = {
 				if (context == '')
 					message.author.sendMessage('You asked to be reminded now of something you never told me!');
 				else
-					message.author.sendMessage(`You asked to be reminded now of ${context}.`);
+					message.author.sendMessage(`You asked to be reminded now of "${context}".`);
 			}, ms);
 		}
 	},
@@ -300,30 +301,7 @@ var commands = {
 				message.channel.sendMessage(`The die is cast (No Puns Intended =D), it's ${die}.`);
 		}
 	},
-	quote: {
-		name: 'Quote',
-		usage: PREFIX + 'quote',
-		description: 'Gets a random quote.',
-		hidden: false,
-		permissions: commandPermissions.USER,
-		executor: function(message) {
-			quotes.getRandomQuote(function(err, statusCode, quote) {
-				if (err) {
-					message.channel.sendMessage('Error parsing data!');
-					//console.log('Error Parsing Quote Data');
-					//console.log('Parse Error: %s', err);
-					return;
-				}
-				//console.log(statusCode + ' ' + JSON.stringify(quote));
-				if (statusCode !== 200 || !quote)
-					message.channel.sendMessage('Error retrieving data.');
-				else {
-					var quoteObj = quote.forismatic.quote[0];
-					message.channel.sendMessage("\"" + quoteObj.quoteText[0] + `\"~${quoteObj.quoteAuthor[0]}`);
-				}
-			});
-		}
-	},
+	quote: quotes,
 	mute: {
 		name: 'Mute',
 		usage: PREFIX + 'mute <@member>',
@@ -667,7 +645,7 @@ var commands = {
 		hidden: true,
 		permissions: commandPermissions.OWNER,
 		executor: function(message, bot) {
-			if (!checkOwner(message, bot)) {
+			if (!checkOwner(message)) {
 				message.channel.sendMessage('You don\'t have enough juice!');
 				return;
 			}
@@ -683,6 +661,38 @@ var commands = {
 						}
 					console.log('Couldn\'t Find myself!');
 				}
+		}
+	},
+	testMusic: {
+		name: 'Test Music',
+		usage: PREFIX + 'testMusic',
+		description: 'For Testing Music',
+		hidden: true,
+		executor: function(message) {
+			if (!checkOwner(message)) {
+				message.channel.sendMessage('You don\'t have enough juice!');
+				return;
+			}
+			var member = message.member;
+			if (!member) {
+				message.channel.sendMessage('Works Only in guild!');
+				return;
+			}
+			var voiceChannel = member.voiceChannel;
+			if (!voiceChannel) {
+				message.channel.sendMessage('You Must be in a voice channel to use this.');
+				return;
+			}
+			if (!voiceChannel.joinable) {
+				message.channel.sendMessage('You Must be in a joinable voice channel to use this.');
+				return;
+			}
+			voiceChannel.join().then(function(connection) {
+				var dispatcher = connection.playFile('./Billie Eilish - Ocean Eyes.mp3');
+				setTimeout(function() {
+					dispatcher.end();
+				}, 5000);
+			}).catch(console.log);
 		}
 	}
 };

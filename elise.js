@@ -5,7 +5,7 @@ const fs = require('fs');
 const commandStuff = require('./commands.js');
 const commandPermissions = commandStuff.commandPermissions;
 const commands = commandStuff.commands;
-const randomizer = require('./randomizer');
+const randomizer = require('./commands/randomizer');
 var config;
 try {
 	config = require('./config.json');
