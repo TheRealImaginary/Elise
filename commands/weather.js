@@ -5,8 +5,8 @@ try {
 	config = require('./config.json');
 } catch (err) {
 	config = {};
-	console.log('Couldn\'t find config.');
-	console.log(err);
+	console.log('Weather Couldn\'t find config.');
+	//console.log(err);
 }
 
 const API_ID = process.env.WEATHER_API || config.WEATHER_API;

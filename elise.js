@@ -24,7 +24,6 @@ const games = ['CSGO', 'StarCraft', 'HotS', 'LotV', 'WoW Level 120', 'LoL', 'Wit
 // const console = new console.Console(fs.createWriteStream(LOG_FILE));
 
 /*******************************************************/
-
 function setStatus(bot) {
 	bot.user.setGame(randomizer(games));
 }

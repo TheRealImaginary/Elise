@@ -9,6 +9,8 @@ const randomizer = require('./commands/randomizer.js');
 const currencyManager = require('./currencyManager.js');
 const weather = require('./commands/weather.js');
 const quotes = require('./commands/quotes.js');
+const RandomQuote = quotes.RandomQuote;
+const TimeQuote = quotes.TimeQuote;
 const currencyManagerInstance = new currencyManager();
 const commandPermissions = {
 	USER: 0,
@@ -20,8 +22,8 @@ try {
 	config = require('./config.json');
 } catch (err) {
 	config = {};
-	console.log('Couldn\'t find config.');
-	console.log(err);
+	console.log('Commands Couldn\'t find config.');
+	//console.log(err);
 }
 
 var PREFIX = process.env.PREFIX || config.PREFIX;
@@ -241,7 +243,7 @@ var commands = {
 			var ms = parsed[0].start.date() - new Date(),
 				context = timeAndData.slice(1).join(' ') || '';
 			if (ms < 0) {
-				quotes.getTimeQuote(function(result) {
+				TimeQuote(function(result) {
 					message.channel.sendMessage(`${result.quote} ~${result.author}.`);
 				});
 				return;
@@ -302,7 +304,7 @@ var commands = {
 				message.channel.sendMessage(`The die is cast (No Puns Intended =D), it's ${die}.`);
 		}
 	},
-	quote: quotes,
+	quote: RandomQuote,
 	mute: {
 		name: 'Mute',
 		usage: PREFIX + 'mute <@member>',
