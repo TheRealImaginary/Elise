@@ -350,7 +350,7 @@ var commands = {
 		description: 'Frees someone from jail',
 		hidden: false,
 		executor(message) {
-			if (!checkPermissions(message, 'MANAGE_ROLES') && !checkOwner(message)) {
+			if (!checkPermissions(message, 'MANAGE_ROLES_OR_PERMISSIONS') && !checkOwner(message)) {
 				message.channel.sendMessage(`You don't have enough juice!`);
 				return;
 			}
