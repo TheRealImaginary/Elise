@@ -5,8 +5,8 @@ const fs = require('fs');
 const commandStuff = require('./commands.js');
 const commandPermissions = commandStuff.commandPermissions;
 const commands = commandStuff.commands;
-const randomizer = require('./commands/randomizer');
-var config;
+const randomizer = require('./util/randomizer');
+let config;
 try {
 	config = require('./config.json');
 } catch (err) {
@@ -28,13 +28,13 @@ function setStatus(bot) {
 	bot.user.setGame(randomizer(games));
 }
 
-var bot = new Discord.Client({
+let bot = new Discord.Client({
 	fetchAllMembers: true
 });
 bot.isASleep = false;
 bot.commandsExecuted = 0;
 
-var started;
+let started;
 
 bot.on('ready', function() {
 	setStatus(bot);
@@ -56,7 +56,7 @@ bot.on('error', function(error) {
 	console.log('/*************************************/');
 });
 //TODO : Maybe send a message if asleep?
-var messageHandler = function(message) {
+let messageHandler = function(message) {
 	if (message.author.bot) {
 		return;
 	}
@@ -120,7 +120,7 @@ bot.on('messageDelete', function(deletedMessage) {
 });
 
 //TODO : Change Logic To Prison, Current is for testing
-var voiceStateUpdateHandler = function(oldMember, newMember) {
+let voiceStateUpdateHandler = function(oldMember, newMember) {
 	console.log('Member moving between channels!');
 };
 bot.on('voiceStateUpdate', voiceStateUpdateHandler);

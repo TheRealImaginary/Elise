@@ -1,9 +1,10 @@
-var http = require('http');
-var xml2js = require('xml2js');
+const http = require('http');
+const xml2js = require('xml2js');
+const request = require('request');
 const quotes = require('./quotes.json');
-const randomizer = require('./randomizer.js');
+const randomizer = require('../util/randomizer.js');
 
-var config;
+let config;
 try {
 	config = require('../config.json');
 } catch (err) {
@@ -11,34 +12,27 @@ try {
 	console.log('Quotes Couldn\'t find config.');
 }
 
-var PREFIX = process.env.PREFIX || config.PREFIX;
+let PREFIX = process.env.PREFIX || config.PREFIX;
 
-function getRandomQuote(callBack) {
-
-	var options = {
-		protocol: 'http:',
-		host: 'api.forismatic.com',
-		path: '/api/1.0/?method=getQuote&format=xml&lang=en',
-		port: 80,
-		method: 'GET'
+async function getRandomQuote(callBack) {
+	let options = {
+		url: 'http://api.forismatic.com/api/1.0/?method=getQuote&format=xml&lang=en',
+		method: 'GET',
 	};
 
-	var request = http.request(options, function(response) {
-		var result = "";
-		response.on('data', function(data) {
-			result += data;
-		});
-		response.on('end', function(data) {
-			xml2js.parseString(result, function(err, finalResult) {
-				if (err)
+	request(options, (err, response, body) => {
+		if (err) {
+			callBack(err);
+		} else {
+			xml2js.parseString(body, (err, parsed) => {
+				if (err) {
 					callBack(err);
-				else
-					callBack(null, response.statusCode, finalResult);
+				} else {
+					callBack(null, parsed);
+				}
 			});
-		});
+		}
 	});
-
-	request.end();
 };
 
 function getTimeQuote(callBack) {
@@ -49,19 +43,18 @@ module.exports = {
 	RandomQuote: {
 		name: 'Quote',
 		usage: PREFIX + 'quote',
-		description: 'Display Available Commands',
+		description: 'Gets a random quote!',
+		permissions: false,
 		hidden: false,
-		executor: function(message) {
-			getRandomQuote(function(err, statusCode, quote) {
+		executor(message) {
+			getRandomQuote(function (err, quote) {
+				console.log(quote);
 				if (err) {
 					message.channel.sendMessage('Error parsing data!');
 					return;
-				}
-				if (statusCode !== 200 || !quote)
-					message.channel.sendMessage('Error retrieving data.');
-				else {
+				} else {
 					var quoteObj = quote.forismatic.quote[0];
-					message.channel.sendMessage("\"" + quoteObj.quoteText[0] + `\"~${quoteObj.quoteAuthor[0]}`);
+					message.channel.sendMessage(`"${quoteObj.quoteText[0]}" ~${quoteObj.quoteAuthor[0]}`);
 				}
 			});
 		}

@@ -4,7 +4,7 @@
   "description": "A bot for discord.",
   "main": "elise.js",
   "scripts": {
-    "start": "node elise.js",
+    "start": "node --harmony elise.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -20,6 +20,7 @@
     "cleverbot-node": "^0.2.5",
     "discord.js": "github:hydrabolt/discord.js#indev-prism",
     "erlpack": "github:hammerandchisel/erlpack",
+    "request": "^2.79.0",
     "xml2js": "^0.4.17",
     "ytdl-core": "^0.8.1"
   }

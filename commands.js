@@ -5,7 +5,8 @@ const RichEmbed = require('discord.js').RichEmbed;
 const chrono = require('chrono-node');
 const fs = require('fs');
 const ytdl = require('ytdl-core');
-const randomizer = require('./commands/randomizer.js');
+
+const random = require('./commands/random.js');
 const currencyManager = require('./currencyManager.js');
 const weather = require('./commands/weather.js');
 const quotes = require('./commands/quotes.js');
@@ -76,22 +77,7 @@ function getMemberInfo(member, bot) {
 	return embed;
 };
 
-function getWeatherData(statusCode, data, bot) {
-	if (statusCode != 200 || !data) {
-		return 'Error getting weather data!';
-	}
-	var embed = new RichEmbed(),
-		weather = data.weather[0],
-		main = data.main,
-		sys = data.sys;
-	embed.setTitle('__**Weather Info**__');
-	embed.addField('➤Info', `⬧Status: ${weather.main}\n⬧Description: ${weather.description}\n⬧Temperature: ${main.temp} Celsius\n⬧Pressure: ${main.pressure} hPa`);
-	embed.addField('➤Miscellaneous', `⬧Country: ${sys.country}\n⬧Sunrise: ${new Date(sys.sunrise * 1000)}\n⬧Sunset: ${new Date(sys.sunset * 1000)}`);
-	embed.setColor('#FF0000');
-	embed.setTimestamp(new Date());
-	embed.setFooter(bot.user.username, bot.user.avatarURL);
-	return embed;
-};
+
 
 function getBotStatus(bot) {
 	var embed = new RichEmbed(),
@@ -138,48 +124,9 @@ var commands = {
 			return message.channel.sendMessage(result);
 		}
 	},
-	random: {
-		name: 'Randomizer',
-		usage: PREFIX + 'random <item1,item2,item3>',
-		description: 'Use to get a random choice from the given list.',
-		hidden: false,
-		permissions: commandPermissions.USER,
-		executor: function(message) {
-			var game = randomizer(message.content.substring(PREFIX.length + 7));
-			if (!game)
-				message.channel.sendMessage("You didn't give me anything to choose from :(!");
-			else {
-				if (Math.random() < 0.5)
-					message.channel.sendMessage('The Random choice is ' + game.trim());
-				else
-					message.channel.sendMessage(`Go ${game.trim()}, I choose you.`);
-			}
-		}
-	},
+	random: random,
 	//TODO : **Is it error proof? **extend to IDs aswell (start from weather file)?
-	weather: {
-		name: 'Weather',
-		usage: PREFIX + 'weather <cityname>',
-		description: 'Use to get weather',
-		hidden: false,
-		permissions: commandPermissions.USER,
-		executor: function(message, bot) {
-			var cityName = message.content.split(' ')[1];
-			if (!cityName || cityName === ' ' || cityName === '') {
-				message.channel.sendMessage('Must Provoid me with city');
-				return;
-			}
-			weather(cityName, function(statusCode, data) {
-				var result = getWeatherData(statusCode, data, bot);
-				// console.log(typeof result);
-				// console.log(JSON.stringify(result));
-				if (typeof result === 'string')
-					message.channel.sendMessage(result);
-				else
-					message.channel.sendEmbed(result);
-			});
-		}
-	},
+	weather: weather,
 	status: {
 		name: 'Status',
 		usage: PREFIX + 'status',
@@ -298,10 +245,7 @@ var commands = {
 			if (!faces || faces === ' ' || faces <= 0)
 				faces = 6;
 			var die = Math.floor(Math.random() * faces) + 1;
-			if (Math.random() < 0.8)
-				message.channel.sendMessage(`You rolled ${die}.`);
-			else
-				message.channel.sendMessage(`The die is cast (No Puns Intended =D), it's ${die}.`);
+			message.channel.sendMessage(`You rolled ${die}.`);
 		}
 	},
 	quote: RandomQuote,
@@ -447,7 +391,7 @@ var commands = {
 			cleverbot.write(content, function(response) {
 				console.log(response);
 				if (!response.message || response.message === '') {
-					console.log(`Cleverbot didn't reponsd`);
+					console.log(`Cleverbot didn't respond`);
 					return;
 				}
 				message.channel.sendMessage(response.message);
