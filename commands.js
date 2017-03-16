@@ -32,7 +32,7 @@ var OWNER = process.env.OWNER || config.OWNER;
 var jailChannel, normalChannel, musicChannel, musicConnection, musicDispatcher;
 
 var Cleverbot = require('cleverbot-node');
-Cleverbot.prepare(function() {});
+Cleverbot.prepare(function () {});
 var cleverbot = new Cleverbot();
 
 //TODO : Library for formating below string(common-tags)
@@ -41,10 +41,10 @@ function getServerInfo(guild, bot) {
 	if (!guild.available)
 		return;
 	var channels = guild.channels;
-	var voiceChannels = channels.filter(function(el) {
+	var voiceChannels = channels.filter(function (el) {
 		return el.type == 'voice'
 	});
-	var textChannels = channels.filter(function(el) {
+	var textChannels = channels.filter(function (el) {
 		return el.type == 'text';
 	});
 	var embed = new RichEmbed();
@@ -70,14 +70,12 @@ function getMemberInfo(member, bot) {
 	embed.setTitle('__**Member Info**__');
 	embed.setAuthor(member.user.username, member.user.avatarURL);
 	embed.addField('➤Member', `⬧Nickname: ${member.nickname || 'None'}\n⬧Joined On: ${member.joinedAt}\n⬧Roles: ${member.roles.size}`);
-	embed.addField('➤User', `⬧Created On: ${member.user.createdAt}\n⬧Status: ${presence.status}\n⬧Game: ${presence.game || 'None'}\n⬧Intelligent: ${member.user.bot?'Not Yet!':'Yes'}`);
+	embed.addField('➤User', `⬧Created On: ${member.user.createdAt}\n⬧Status: ${presence.status}\n⬧Game: ${presence.game?presence.game.name:'None'}\n⬧Intelligent: ${member.user.bot?'Not Yet!':'Yes'}`);
 	embed.setTimestamp(new Date());
 	embed.setFooter(bot.user.username, bot.user.avatarURL);
 	embed.setColor('#FF0000');
 	return embed;
 };
-
-
 
 function getBotStatus(bot) {
 	var embed = new RichEmbed(),
@@ -115,7 +113,7 @@ var commands = {
 		description: 'Display Available Commands',
 		hidden: false,
 		permissions: commandPermissions.USER,
-		executor: function(message) {
+		executor: function (message) {
 			var result = "";
 			for (var command in commands) {
 				if (!commands[command].hidden)
@@ -133,7 +131,7 @@ var commands = {
 		description: 'Use to get bot\'s status',
 		hidden: false,
 		permissions: commandPermissions.USER,
-		executor: function(message, bot) {
+		executor: function (message, bot) {
 			console.log(bot.commandsExecuted);
 			message.channel.sendEmbed(getBotStatus(bot));
 		}
@@ -144,7 +142,7 @@ var commands = {
 		description: 'Get The Current Server Info',
 		hidden: false,
 		permissions: commandPermissions.USER,
-		executor: function(message, bot) {
+		executor: function (message, bot) {
 			message.channel.sendEmbed(getServerInfo(message.guild, bot));
 		}
 	},
@@ -156,7 +154,7 @@ var commands = {
 		description: 'Get Info about given member',
 		hidden: false,
 		permissions: commandPermissions.USER,
-		executor: function(message, bot) {
+		executor: function (message, bot) {
 			if (!message.guild) {
 				message.channel.sendMessage('I am sorry human, This is only availble with channels in a guild.');
 				return;
@@ -175,7 +173,7 @@ var commands = {
 		description: 'Reminds You Of Something',
 		hidden: false,
 		permissions: commandPermissions.USER,
-		executor: function(message) {
+		executor: function (message) {
 			var timeAndData = message.content.substring(PREFIX.length + 9).split(' ');
 			if (timeAndData.length == 0) {
 				message.channel.sendMessage('You must atleast provoid me with time.');
@@ -190,13 +188,13 @@ var commands = {
 			var ms = parsed[0].start.date() - new Date(),
 				context = timeAndData.slice(1).join(' ') || '';
 			if (ms < 0) {
-				TimeQuote(function(result) {
+				TimeQuote(function (result) {
 					message.channel.sendMessage(`${result.quote} ~${result.author}.`);
 				});
 				return;
 			}
 			message.channel.sendMessage(`I will remind you in ${ms} ms in a DM. Do the math human.`);
-			setTimeout(function() {
+			setTimeout(function () {
 				if (context == '')
 					message.author.sendMessage('You asked to be reminded now of something you never told me!');
 				else
@@ -210,7 +208,7 @@ var commands = {
 		description: 'Flips A Coin',
 		hidden: false,
 		permissions: commandPermissions.USER,
-		executor: function(message) {
+		executor: function (message) {
 			message.channel.sendMessage(`It is ${Math.random() < 0.5?'Heads':'Tails'}`);
 		}
 	},
@@ -220,7 +218,7 @@ var commands = {
 		description: 'Flips',
 		hidden: false,
 		permissions: commandPermissions.USER,
-		executor: function(message) {
+		executor: function (message) {
 			message.channel.sendMessage('(╯°□°）╯︵ ┻━┻');
 		}
 	},
@@ -230,7 +228,7 @@ var commands = {
 		description: 'UnFlips',
 		hidden: false,
 		permissions: commandPermissions.USER,
-		executor: function(message) {
+		executor: function (message) {
 			message.channel.sendMessage('┬─┬ ノ( ^_^ノ)');
 		}
 	},
@@ -240,7 +238,7 @@ var commands = {
 		description: 'Rolls a dice with \'n\' Faces.',
 		hidden: false,
 		permissions: commandPermissions.USER,
-		executor: function(message) {
+		executor: function (message) {
 			var faces = message.content.split(' ')[1];
 			if (!faces || faces === ' ' || faces <= 0)
 				faces = 6;
@@ -254,7 +252,7 @@ var commands = {
 		usage: PREFIX + 'mute <@member>',
 		description: 'Mutes A Member',
 		hidden: false,
-		executor: function(message) {
+		executor: function (message) {
 			if (!checkPermissions(message, 'MUTE_MEMBERS')) {
 				message.channel.sendMessage(`You don't have enough juice!`);
 				return;
@@ -272,7 +270,7 @@ var commands = {
 					message.channel.sendMessage(`Member is already muted/deafen.`);
 					return;
 				}
-				guildMember.setMute(true).then(function(member) {
+				guildMember.setMute(true).then(function (member) {
 					console.log(`${member.user.username} got muted by ${message.author.username}.`);
 				}).catch(console.err);
 			} else
@@ -284,7 +282,7 @@ var commands = {
 		usage: PREFIX + 'unmute <@member>',
 		description: 'Unmutes A Member',
 		hidden: false,
-		executor: function(message) {
+		executor: function (message) {
 			if (!checkPermissions(message, 'MUTE_MEMBERS')) {
 				message.channel.sendMessage(`You don't have enough juice!`);
 				return;
@@ -298,7 +296,7 @@ var commands = {
 					message.channel.sendMessage(`Couldn't find a member with that name!`);
 					return;
 				}
-				guildMember.setMute(false).then(function(member) {
+				guildMember.setMute(false).then(function (member) {
 					console.log(`${member.user.username} got unmuted by ${message.author.username}.`);
 				}).catch(console.err);
 			} else
@@ -385,10 +383,10 @@ var commands = {
 		usage: PREFIX + 'chat <message>',
 		description: 'Want to play the imitation game?!',
 		hidden: false,
-		executor: function(message) {
+		executor: function (message) {
 			var content = message.content.split(' ').slice(1);
 			console.log(content);
-			cleverbot.write(content, function(response) {
+			cleverbot.write(content, function (response) {
 				console.log(response);
 				if (!response.message || response.message === '') {
 					console.log(`Cleverbot didn't respond`);
@@ -403,7 +401,7 @@ var commands = {
 		usage: PREFIX + 'juice',
 		description: 'Trolls the user',
 		hidden: true,
-		executor: function(message) {
+		executor: function (message) {
 			message.channel.sendMessage(`You don't have enough juice to get juice!`);
 		}
 	},
@@ -413,7 +411,7 @@ var commands = {
 		description: 'Get Money Amount',
 		hidden: true,
 		permissions: commandPermissions.OWNER,
-		executor: function(message) {
+		executor: function (message) {
 			if (!checkOwner(message)) {
 				message.channel.sendMessage('You don\'t have enough juice!');
 				return;
@@ -428,7 +426,7 @@ var commands = {
 		description: 'Test Currency',
 		hidden: true,
 		permissions: commandPermissions.OWNER,
-		executor: function(message) {
+		executor: function (message) {
 			if (!checkOwner(message)) {
 				message.channel.sendMessage('You don\'t have enough juice!');
 				return;
@@ -443,7 +441,7 @@ var commands = {
 		description: 'Test Currency',
 		hidden: true,
 		permissions: commandPermissions.OWNER,
-		executor: function(message) {
+		executor: function (message) {
 			if (!checkOwner(message)) {
 				message.channel.sendMessage('You don\'t have enough juice!');
 				return;
@@ -461,7 +459,7 @@ var commands = {
 		description: 'Test Currency',
 		hidden: true,
 		permissions: commandPermissions.OWNER,
-		executor: function(message) {
+		executor: function (message) {
 			if (!checkOwner(message)) {
 				message.channel.sendMessage('You don\'t have enough juice!');
 				return;
@@ -475,7 +473,7 @@ var commands = {
 		description: 'Test Currency',
 		hidden: true,
 		permissions: commandPermissions.OWNER,
-		executor: function(message) {
+		executor: function (message) {
 			if (!checkOwner(message)) {
 				message.channel.sendMessage('You don\'t have enough juice!');
 				return;
@@ -489,7 +487,7 @@ var commands = {
 		description: 'Bot can get some rest.',
 		hidden: true,
 		permissions: commandPermissions.OWNER,
-		executor: function(message, bot) {
+		executor: function (message, bot) {
 			if (!checkOwner(message)) {
 				message.channel.sendMessage('You don\'t have enough juice!');
 				return;
@@ -504,7 +502,7 @@ var commands = {
 		description: 'Bot wakesup',
 		hidden: true,
 		permissions: commandPermissions.OWNER,
-		executor: function(message, bot) {
+		executor: function (message, bot) {
 			if (!checkOwner(message)) {
 				message.channel.sendMessage('You don\'t have enough juice!');
 				return;
@@ -570,7 +568,7 @@ var commands = {
 		description: 'Sends an invite link',
 		hidden: true,
 		permissions: commandPermissions.OWNER,
-		executor: function(message, bot) {
+		executor: function (message, bot) {
 			if (!checkOwner(message)) {
 				message.channel.sendMessage('You don\'t have enough juice!');
 				return;
@@ -578,7 +576,7 @@ var commands = {
 			var permissions = message.content.split(' ').slice(1);
 			if (permissions)
 				console.log(permissions);
-			bot.generateInvite(permissions).then(function(invite) {
+			bot.generateInvite(permissions).then(function (invite) {
 				//logger.log('Invite Created With Permissions ' + permissions);
 				console.log('Invite Created With Permissions ' + (permissions.length == 0 ? 'NO PERMISSIONS' : permissions));
 				message.channel.sendMessage(invite);
@@ -591,7 +589,7 @@ var commands = {
 		description: 'Resets Bot\'s Nickname',
 		hidden: true,
 		permissions: commandPermissions.OWNER,
-		executor: function(message, bot) {
+		executor: function (message, bot) {
 			if (!checkOwner(message)) {
 				message.channel.sendMessage('You don\'t have enough juice!');
 				return;
