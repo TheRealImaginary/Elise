@@ -48,7 +48,6 @@ module.exports = {
 		hidden: false,
 		executor(message) {
 			getRandomQuote(function (err, quote) {
-				console.log(quote);
 				if (err) {
 					message.channel.sendMessage('Error parsing data!');
 					return;
