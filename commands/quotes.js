@@ -14,7 +14,7 @@ try {
 
 let PREFIX = process.env.PREFIX || config.PREFIX;
 
-async function getRandomQuote(callBack) {
+function getRandomQuote(callBack) {
 	let options = {
 		url: 'http://api.forismatic.com/api/1.0/?method=getQuote&format=xml&lang=en',
 		method: 'GET',
@@ -47,6 +47,7 @@ module.exports = {
 		permissions: false,
 		hidden: false,
 		executor(message) {
+			console.log(message);
 			getRandomQuote(function (err, quote) {
 				console.log(quote);
 				if (err) {

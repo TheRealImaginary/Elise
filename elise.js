@@ -11,8 +11,7 @@ try {
 	config = require('./config.json');
 } catch (err) {
 	config = {};
-	console.log('Couldn\'t find config.');
-	console.log(err);
+	console.log('Elise Couldn\'t find config.');
 }
 /*Constants*/
 const TOKEN = process.env.TOKEN || config.TOKEN;
