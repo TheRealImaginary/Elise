@@ -47,7 +47,7 @@ module.exports = {
 		permissions: false,
 		hidden: false,
 		executor(message) {
-			console.log(message);
+			console.log(1);
 			getRandomQuote(function (err, quote) {
 				console.log(quote);
 				if (err) {
