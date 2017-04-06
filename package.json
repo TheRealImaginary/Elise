@@ -4,7 +4,7 @@
   "description": "A bot for discord.",
   "main": "elise.js",
   "scripts": {
-    "start": "node --harmony elise.js",
+    "start": "node elise.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

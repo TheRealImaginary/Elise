@@ -10,4 +10,7 @@ function getRandom(low, high) {
 	return Math.floor(Math.random() * (high - low) + low);
 };
 
-module.exports = randomizer;
+module.exports = {
+	randomizer,
+	getRandom
+};

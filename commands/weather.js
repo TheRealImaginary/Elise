@@ -10,7 +10,6 @@ try {
 }
 
 const API_ID = process.env.WEATHER_API || config.WEATHER_API;
-const PREFIX = process.env.PREFIX || config.PREFIX;
 
 function getWeather(city, callBack) {
 
@@ -19,6 +18,7 @@ function getWeather(city, callBack) {
 		method: 'GET',
 		json: true
 	}
+
 	request(options, (err, response, body) => {
 		if (err) {
 			callBack(err, null);
@@ -47,12 +47,11 @@ function getWeatherData(err, data, bot) {
 
 module.exports = {
 	name: 'Weather',
-	usage: PREFIX + 'weather <cityname>',
+	usage: `${PREFIX}weather <cityname>`,
 	description: 'Use to get weather',
 	hidden: false,
-	// permissions: false,
 	executor(message, bot) {
-		var cityName = message.content.split(' ')[1];
+		let cityName = message.content.split(' ')[1];
 		if (!cityName || cityName === ' ' || cityName === '') {
 			message.channel.sendMessage('Must Provoid me with a city name.');
 			return;

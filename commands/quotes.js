@@ -1,20 +1,10 @@
-const http = require('http');
 const xml2js = require('xml2js');
 const request = require('request');
 const quotes = require('./quotes.json');
 const randomizer = require('../util/randomizer.js');
 
-let config;
-try {
-	config = require('../config.json');
-} catch (err) {
-	config = {};
-	console.log('Quotes Couldn\'t find config.');
-}
-
-let PREFIX = process.env.PREFIX || config.PREFIX;
-
 function getRandomQuote(callBack) {
+
 	let options = {
 		url: 'http://api.forismatic.com/api/1.0/?method=getQuote&format=xml&lang=en',
 		method: 'GET',
@@ -42,7 +32,7 @@ function getTimeQuote(callBack) {
 module.exports = {
 	RandomQuote: {
 		name: 'Quote',
-		usage: PREFIX + 'quote',
+		usage: `${PREFIX}quote`,
 		description: 'Gets a random quote!',
 		permissions: false,
 		hidden: false,
@@ -52,7 +42,7 @@ module.exports = {
 					message.channel.sendMessage('Error parsing data!');
 					return;
 				} else {
-					var quoteObj = quote.forismatic.quote[0];
+					let quoteObj = quote.forismatic.quote[0];
 					message.channel.sendMessage(`"${quoteObj.quoteText[0]}" ~${quoteObj.quoteAuthor[0]}`);
 				}
 			});
