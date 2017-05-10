@@ -25,7 +25,8 @@ bot.registry
   .registerGroups([
     ['info', 'Info'],
     ['weather', 'Weather'],
-    ['util', 'Util']
+    ['util', 'Util'],
+    ['mod', 'Mod']
   ])
   .registerCommandsIn(`${__dirname}/commands`);
 
