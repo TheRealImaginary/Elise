@@ -18,9 +18,7 @@ module.exports = class Random extends Command {
     });
   }
 
-  run(message, arg) {
-    console.log(arg);
-    const { items } = arg;
+  run(message, { items }) {
     const item = randomizer(items);
     if (item) {
       if (Math.random() < 0.5) {
