@@ -17,7 +17,6 @@ module.exports = class RemindMeCommand extends Command {
         type: 'string',
         validate(duration) {
           const parsed = Sherlock.parse(duration);
-          console.log(parsed);
           if (!parsed.startDate || new Date(parsed.startDate) - Date.now() <= 0) {
             return 'I am sorry that was not a valid date format!';
           }
