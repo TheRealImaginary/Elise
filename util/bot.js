@@ -5,9 +5,9 @@ module.exports = class Bot extends Client {
   constructor(options) {
     super(options);
 
-    Object.defineProperty(this, 'trivia', { value: 'false' });
+    this.trivia = false;
 
-    Object.defineProperty(this, 'commandsExecuted', { value: '0' });
+    this.commandsExecuted = 0;
   }
 
   get status() {
