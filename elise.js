@@ -21,9 +21,11 @@ bot.on('ready', () => console.log('Bot Ready!'));
 
 bot.registry
   .registerDefaults()
+  .registerTypesIn(`${__dirname}/types`)
   .registerGroups([
     ['info', 'Info'],
-    ['weather', 'Weather']
+    ['weather', 'Weather'],
+    ['util', 'Util']
   ])
   .registerCommandsIn(`${__dirname}/commands`);
 
