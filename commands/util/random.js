@@ -13,7 +13,13 @@ module.exports = class Random extends Command {
       args: [{
         key: 'items',
         prompt: 'What choices do we have ?!',
-        type: 'list'
+        type: 'string',
+        validate(list) {
+          return typeof list === 'string' && list.trim().length > 0;
+        },
+        parse(list) {
+          return list.split(',');
+        }
       }]
     });
   }
