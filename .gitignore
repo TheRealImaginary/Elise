@@ -40,3 +40,5 @@ jspm_packages
 config.json
 package.json~
 Procfile~
+temp
+.env
