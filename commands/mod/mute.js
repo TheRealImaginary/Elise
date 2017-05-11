@@ -9,11 +9,29 @@ module.exports = class Mute extends Command {
       group: 'mod',
       memberName: 'mute',
       description: 'Mutes a member from speaking in voice channels',
+      args: [{
+        key: 'victim',
+        prompt: 'Which member do you want me to mute ?',
+        type: 'member'
+      }],
       guildOnly: true
     });
   }
 
-  run(message) {
-    message.say('In Progress');
+  hasPermissions(member) {
+    return member.permissions.has('MUTE_MEMBERS');
+  }
+
+  async run(message, { victim }) {
+    if (this.hasPermissions(message.member)) {
+      if (victim.selfDeaf || victim.selfMute || victim.serverDeaf || victim.serverMute) {
+        message.say('Member is already Muted/Deafened');
+      } else {
+        await victim.setMute(true);
+        message.say(`${message.member.displayName} has muted ${victim.displayName}!`);
+      }
+    } else {
+      message.say('You don\'t have enough juice');
+    }
   }
 };
