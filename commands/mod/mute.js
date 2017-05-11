@@ -24,7 +24,7 @@ module.exports = class Mute extends Command {
 
   async run(message, { victim }) {
     if (this.hasPermissions(message.member)) {
-      if (victim.selfDeaf || victim.selfMute || victim.serverDeaf || victim.serverMute) {
+      if (victim.serverDeaf || victim.serverMute) {
         message.say('Member is already Muted/Deafened');
       } else {
         await victim.setMute(true);
