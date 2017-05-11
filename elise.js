@@ -22,10 +22,11 @@ bot.on('ready', () => console.log('Bot Ready!'));
 bot.registry
   .registerDefaults()
   .registerGroups([
+    ['fun', 'Fun'],
     ['info', 'Info'],
-    ['weather', 'Weather'],
+    ['mod', 'Mod'],
     ['util', 'Util'],
-    ['mod', 'Mod']
+    ['weather', 'Weather']
   ])
   .registerCommandsIn(`${__dirname}/commands`);
 
