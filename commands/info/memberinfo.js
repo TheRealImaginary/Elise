@@ -10,12 +10,17 @@ module.exports = class MemberInfo extends Command {
       group: 'info',
       memberName: 'memberinfo',
       description: 'Displays Member\'s Info',
+      args: [{
+        key: 'member',
+        prompt: 'Which member do you want to know more about ?',
+        type: 'member'
+      }],
       guildOnly: true
     });
   }
 
-  run(message) {
-    const memberInfo = this.getMemberInfo(message.mentions.members.first());
+  run(message, { member }) {
+    const memberInfo = this.getMemberInfo(member);
     if (memberInfo) {
       message.embed(memberInfo);
     } else {
