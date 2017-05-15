@@ -1,5 +1,6 @@
 const { Client } = require('discord.js-commando');
-const { RichEmbed } = require('discord.js');
+const { RichEmbed, Collection } = require('discord.js');
+const MusicQueue = require('./music-queue');
 
 module.exports = class Bot extends Client {
   constructor(options) {
@@ -7,9 +8,34 @@ module.exports = class Bot extends Client {
 
     this.trivia = false;
 
-    this.musicPlaying = false;
+    this.queues = new Collection();
 
     this.commandsExecuted = 0;
+  }
+
+  checkMusicQueue(member, guild) {
+    const queue = this.queues.get(guild);
+    return !queue || !queue.isPlaying || queue.connection.channel.members.has(member.id);
+  }
+
+  addToQueue(guild, song) {
+    if (!this.queues.has(guild)) {
+      this.queues.set(guild, new MusicQueue());
+    }
+    this.queues.get(guild).add(song);
+    console.log(this.queues.get(guild).queue);
+  }
+
+  isMusicPlaying(guild) {
+    return this.queues.get(guild).isPlaying;
+  }
+
+  setMusicStatus(guild, status) {
+    this.queues.get(guild).isPlaying = status;
+  }
+
+  getMusicQueue(guild) {
+    return this.queues.get(guild);
   }
 
   get status() {

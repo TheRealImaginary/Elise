@@ -1,41 +1,30 @@
-const queue = [];
-let connection;
-
 module.exports = class MusicQueue {
   constructor() {
-    throw new Error(`${this.constructor.name} cannot be instantiated !`);
+    this.queue = [];
+
+    this.connection = null;
+
+    this.isPlaying = false;
   }
 
-  static shift() {
-    queue.shift();
+  shift() {
+    this.queue.shift();
   }
 
-  static getQueue() {
-    return queue;
+  get song() {
+    return this.queue[0];
   }
 
-  static add(item) {
-    queue.push(item);
+  add(item) {
+    this.queue.push(item);
   }
 
-  static get song() {
-    return queue[0];
-  }
-
-  static get connection() {
-    return connection;
-  }
-
-  static disconnect() {
-    if (connection) {
-      connection.channel.leave();
-      connection = null;
+  disconnect() {
+    if (this.connection) {
+      this.connection.channel.leave();
+      this.connection = null;
       return true;
     }
     return false;
-  }
-
-  static connect(voiceConnection) {
-    connection = voiceConnection;
   }
 };

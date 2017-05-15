@@ -1,7 +1,5 @@
 const { Command } = require('discord.js-commando');
 
-const musicQueue = require('../../util/music-queue');
-
 module.exports = class Leave extends Command {
   constructor(client) {
     super(client, {
@@ -20,7 +18,7 @@ module.exports = class Leave extends Command {
 
   run(message) {
     if (this.hasPermissions(message.author)) {
-      if (!musicQueue.disconnect()) {
+      if (!this.client.getMusicQueue(message.guild.id).disconnect()) {
         message.say('We are not playing any music !');
       }
     } else {

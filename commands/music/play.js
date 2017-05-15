@@ -3,8 +3,6 @@ const Youtube = require('simple-youtube-api');
 const ytdl = require('ytdl-core');
 const { Command } = require('discord.js-commando');
 
-const musicQueue = require('../../util/music-queue');
-
 const api = new Youtube(process.env.YOUTUBE_KEY);
 const youtubeRegex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
 
@@ -27,27 +25,28 @@ module.exports = class Play extends Command {
   }
 
   async run(message, { song }) {
-    const statusMessage = await message.say('Getting Video Info... !');
-    if (youtubeRegex.test(song)) {
+    if (message.member.voiceChannel || this.client.checkMusicQueue(message.member, message.guild)) {
+      const statusMessage = await message.say('Getting Video Info... !');
       try {
-        const video = await this.getVideo(message.author, song);
-        this.play(message.member, statusMessage, video);
+        if (youtubeRegex.test(song)) {
+          const video = await this.getVideo(message.author, song);
+          this.addToQueue(message, statusMessage, video);
+        } else {
+          console.log(1);
+          const video = await this.getVideoByName(message.author, song);
+          this.addToQueue(message, statusMessage, video);
+        }
       } catch (err) {
         if (err.name === 'Live') {
           statusMessage.edit(err.message);
         } else if (err.name === 'Too Long') {
           statusMessage.edit(err.message);
         } else {
-          message.say('An Error Occured Fetching Video Data !');
+          statusMessage.edit('An Error Occured Fetching Video Data !');
         }
       }
     } else {
-      try {
-        const video = await this.getVideoByName(message.author, song);
-        this.play(message.member, statusMessage, video);
-      } catch (err) {
-        message.say('An Error Occured Fetching Video Data !');
-      }
+      message.say('You need to be in a voice channel !');
     }
   }
 
@@ -77,21 +76,33 @@ module.exports = class Play extends Command {
     return this.normalize(user, video);
   }
 
-  addToQueue(member, statusMessage, video) {
-    musicQueue.add(video);
-    if (!this.musicPlaying) {
-      this.musicPlaying = true;
-      this.play(member, statusMessage, video);
+  async addToQueue(message, statusMessage, video) {
+    const guild = message.guild.id;
+    this.client.addToQueue(guild, video);
+    if (!this.client.isMusicPlaying(guild)) {
+      this.client.setMusicStatus(guild, true);
+      try {
+        statusMessage = await statusMessage.edit('Joining Your Channel... !');
+        const connection = await message.member.voiceChannel.join();
+        this.client.getMusicQueue(guild).connection = connection;
+        this.play(guild, statusMessage, video);
+      } catch (err) {
+        console.log(err);
+        statusMessage.edit('An Error Occured Joining your channel !');
+      }
+    } else {
+      statusMessage.edit('Added Song to queue !');
     }
   }
 
-  async play(member, statusMessage, video) {
+  async play(guild, statusMessage, video) {
     if (!video) {
+      this.client.getMusicQueue(guild).disconnect();
       return;
     }
+    const queue = this.client.getMusicQueue(guild);
     try {
-      statusMessage = await statusMessage.edit('Joining Your Channel... !');
-      const connection = await member.voiceChannel.join();
+      const connection = queue.connection;
       console.log('Downloading Music.. !');
       statusMessage = await statusMessage.edit('Downloading Music... !');
       const stream = ytdl(video.url, { quality: 'lowest', filter: 'audioonly' });
@@ -110,21 +121,21 @@ module.exports = class Play extends Command {
       });
       const dispatcher = connection.playStream(stream);
       dispatcher.setVolumeLogarithmic(0.25);
-      musicQueue.connect(connection);
       dispatcher.on('error', err => {
         console.log('An Error Occured playing song !');
         console.log(err);
         statusMessage.edit('An Error Occured playing song ! :(');
       });
 
-      dispatcher.on('end', reason => {
+      dispatcher.on('end', async reason => {
         console.log(`Stream Ended because of ${reason}`);
-        musicQueue.shift();
-        this.play(null, statusMessage, musicQueue.song);
+        statusMessage = await statusMessage.channel.send('Shifting Queue... !');
+        queue.shift();
+        this.play(guild, statusMessage, queue.song);
       });
     } catch (err) {
       console.log(err);
-      statusMessage.edit('Error Occured Joining your Voice Channel !');
+      statusMessage.edit('Error Occured Downloading Video !');
     }
   }
 
