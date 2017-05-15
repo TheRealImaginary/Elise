@@ -16,7 +16,7 @@ module.exports = class Volume extends Command {
   }
 
   run(message, args) {
-    const connection = musicQueue.connection;
+    const connection = this.client.getMusicQueue(message.guild.id).connection;
     if (connection) {
       let newVolume = parseInt(args, 10);
       if (isNaN(newVolume)) {

@@ -2,6 +2,7 @@ const moment = require('moment');
 const Youtube = require('simple-youtube-api');
 const ytdl = require('ytdl-core');
 const { Command } = require('discord.js-commando');
+const { RichEmbed } = require('discord.js');
 
 const api = new Youtube(process.env.YOUTUBE_KEY);
 const youtubeRegex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
@@ -76,27 +77,29 @@ module.exports = class Play extends Command {
     return this.normalize(user, video);
   }
 
-  async addToQueue(message, statusMessage, video) {
-    const guild = message.guild.id;
-    this.client.addToQueue(guild, video);
-    if (!this.client.isMusicPlaying(guild)) {
-      this.client.setMusicStatus(guild, true);
+  async addToQueue({ guild, member }, statusMessage, video) {
+    const guildID = guild.id;
+    this.client.addToQueue(guildID, video);
+    if (!this.client.isMusicPlaying(guildID)) {
+      this.client.setMusicStatus(guildID, true);
       try {
         statusMessage = await statusMessage.edit('Joining Your Channel... !');
-        const connection = await message.member.voiceChannel.join();
-        this.client.getMusicQueue(guild).connection = connection;
-        this.play(guild, statusMessage, video);
+        console.log(member.voiceChannel.name);
+        const connection = await member.voiceChannel.join();
+        this.client.getMusicQueue(guildID).connection = connection;
+        this.play(guildID, statusMessage, video);
       } catch (err) {
         console.log(err);
         statusMessage.edit('An Error Occured Joining your channel !');
       }
-    } else {
-      statusMessage.edit('Added Song to queue !');
+      return;
     }
+    statusMessage.edit('Added Song to queue !');
   }
 
   async play(guild, statusMessage, video) {
     if (!video) {
+      statusMessage.edit('We have ran out of songs !');
       this.client.getMusicQueue(guild).disconnect();
       return;
     }
@@ -108,8 +111,7 @@ module.exports = class Play extends Command {
       const stream = ytdl(video.url, { quality: 'lowest', filter: 'audioonly' });
       stream.on('response', async () => {
         console.log('Response');
-        statusMessage = await statusMessage.edit('Playing music... !');
-        statusMessage.delete(500);
+        statusMessage.edit('', { embed: this.nowPlaying(video) });
       });
       stream.on('error', err => {
         console.log('An Error Occured while downloading !');
@@ -128,10 +130,12 @@ module.exports = class Play extends Command {
       });
 
       dispatcher.on('end', async reason => {
-        console.log(`Stream Ended because of ${reason}`);
-        statusMessage = await statusMessage.channel.send('Shifting Queue... !');
-        queue.shift();
-        this.play(guild, statusMessage, queue.song);
+        if (reason) {
+          console.log(`Stream Ended because of ${reason}`);
+          statusMessage = await statusMessage.channel.send('Shifting Queue... !');
+          queue.shift();
+          this.play(guild, statusMessage, queue.song);
+        }
       });
     } catch (err) {
       console.log(err);
@@ -139,12 +143,24 @@ module.exports = class Play extends Command {
     }
   }
 
+  nowPlaying(video) {
+    const embed = new RichEmbed();
+    embed.setThumbnail(video.thumbnail);
+    embed.setTitle('__**Now Playing**__');
+    embed.addField('➤Details', `⬧[${video.title}](${video.url})\n⬧${video.duration}`);
+    embed.setColor('#FF0000');
+    embed.setAuthor(video.addedBy.author, video.addedBy.avatar);
+    embed.setFooter(this.client.user.username, this.client.user.avatarURL);
+    embed.setTimestamp(new Date());
+    return embed;
+  }
+
   normalize(user, video) {
     return {
       url: video.url,
       title: video.title,
       duration: moment.duration(video.durationSeconds, 'seconds').humanize(),
-      thumbnail: `https://img.youtube.com/vi/${video.id}/mqdefault.jpg`,
+      thumbnail: `https://img.youtube.com/vi/${video.id}/hqdefault.jpg`,
       addedBy: {
         author: user.tag,
         avatar: user.displayAvatarURL

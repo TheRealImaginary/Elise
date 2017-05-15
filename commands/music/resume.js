@@ -16,7 +16,7 @@ module.exports = class Resume extends Command {
   }
 
   run(message) {
-    const connection = musicQueue.connection;
+    const connection = this.client.getMusicQueue(message.guild.id).connection;
     if (connection) {
       if (connection.dispatcher.paused) {
         connection.dispatcher.resume();

@@ -16,9 +16,13 @@ module.exports = class Pause extends Command {
   }
 
   run(message) {
-    const connection = musicQueue.connection;
+    const connection = this.client.getMusicQueue(message.guild.id).connection;
     if (connection) {
-      connection.dispatcher.pause();
+      if (connection.dispatcher.paused) {
+        message.say('Songs are already paused !');
+      } else {
+        connection.dispatcher.pause();
+      }
       message.say(`${message.member.displayName} has paused the music !`);
     } else {
       message.say('We arenot playing any music !');

@@ -23,6 +23,8 @@ module.exports = class MusicQueue {
     if (this.connection) {
       this.connection.channel.leave();
       this.connection = null;
+      this.isPlaying = false;
+      this.queue = [];
       return true;
     }
     return false;
