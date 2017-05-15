@@ -7,6 +7,8 @@ module.exports = class Bot extends Client {
 
     this.trivia = false;
 
+    this.musicPlaying = false;
+
     this.commandsExecuted = 0;
   }
 

@@ -25,6 +25,7 @@ bot.registry
     ['fun', 'Fun'],
     ['info', 'Info'],
     ['mod', 'Mod'],
+    ['music', 'Music'],
     ['util', 'Util'],
     ['weather', 'Weather']
   ])
