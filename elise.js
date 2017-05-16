@@ -1,9 +1,9 @@
 const dotenv = require('dotenv');
 const { Constants } = require('discord.js');
 
-const Client = require('./util/bot');
-
 dotenv.config();
+
+const Client = require('./util/bot');
 
 const Events = Object.values(Constants.Events);
 
@@ -24,6 +24,7 @@ bot.registry
   .registerGroups([
     ['fun', 'Fun'],
     ['info', 'Info'],
+    ['memes', 'Memes'],
     ['mod', 'Mod'],
     ['music', 'Music'],
     ['util', 'Util'],

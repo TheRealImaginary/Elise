@@ -1,3 +1,5 @@
+const MAX_QUEUE_SIZE = parseInt(process.env.MAX_QUEUE_SIZE, 10);
+
 module.exports = class MusicQueue {
   constructor() {
     this.queue = [];
@@ -16,7 +18,11 @@ module.exports = class MusicQueue {
   }
 
   add(item) {
+    if (this.queue.length === MAX_QUEUE_SIZE) {
+      return false;
+    }
     this.queue.push(item);
+    return true;
   }
 
   disconnect() {

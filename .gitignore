@@ -43,3 +43,4 @@ Procfile~
 temp
 .env
 assets
+commands/memes

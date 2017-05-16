@@ -26,7 +26,7 @@ module.exports = class Play extends Command {
   }
 
   async run(message, { song }) {
-    if (message.member.voiceChannel || this.client.checkMusicQueue(message.member, message.guild)) {
+    if (this.client.checkMusicQueue(message.member, message.guild)) {
       const statusMessage = await message.say('Getting Video Info... !');
       try {
         if (youtubeRegex.test(song)) {
@@ -79,7 +79,10 @@ module.exports = class Play extends Command {
 
   async addToQueue({ guild, member }, statusMessage, video) {
     const guildID = guild.id;
-    this.client.addToQueue(guildID, video);
+    if (!this.client.addToQueue(guildID, video)) {
+      statusMessage.edit('Queue is at maximum capacity !');
+      return;
+    }
     if (!this.client.isMusicPlaying(guildID)) {
       this.client.setMusicStatus(guildID, true);
       try {

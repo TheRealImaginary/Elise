@@ -1,7 +1,5 @@
 const { Command } = require('discord.js-commando');
 
-const musicQueue = require('../../util/music-queue');
-
 module.exports = class Volume extends Command {
   constructor(client) {
     super(client, {
@@ -26,7 +24,7 @@ module.exports = class Volume extends Command {
         } else if (args === 'down' || args === '-') {
           newVolume -= 2;
         } else {
-          newVolume = 0.5;
+          newVolume = 1.25;
         }
       }
       if (newVolume > 10 || newVolume <= 0) {
