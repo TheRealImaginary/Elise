@@ -33,4 +33,17 @@ memeSchema.methods.use = function () {
     });
 };
 
+memeSchema.statics.findAndCount = function (options) {
+  return new Promise((resolve, reject) => {
+    this.count(options.count)
+      .exec()
+      .then(count => {
+        this.find(options.find)
+          .exec()
+          .then(memes => resolve([count, memes]))
+          .catch(reject);
+      }).catch(reject);
+  });
+};
+
 module.exports = mongoose.model('Meme', memeSchema);
