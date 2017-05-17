@@ -24,4 +24,13 @@ const memeSchema = mongoose.Schema({
   }
 });
 
+memeSchema.methods.use = function () {
+  this.uses++;
+  this.save()
+    .catch(err => {
+      console.log('An Error Occured Incrementing Uses !');
+      console.log(err);
+    });
+};
+
 module.exports = mongoose.model('Meme', memeSchema);
