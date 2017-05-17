@@ -46,4 +46,26 @@ memeSchema.statics.findAndCount = function (options) {
   });
 };
 
+memeSchema.statics.findThenRemove = function (name, author) {
+  return new Promise((resolve, reject) => {
+    this.findOne({ name })
+      .exec()
+      .then(meme => {
+        if (meme) {
+          if (author.id === meme.addedBy) {
+            this.remove({ name }).then(resolve).catch(reject);
+          } else {
+            const error = new Error('You are not this Meme creator. Only Meme Creators or Bot Owners can delete Memes !');
+            error.name = 'NotCreator';
+            reject(error);
+          }
+        } else {
+          const error = new Error(`No Meme exists with name ${name} !`);
+          error.name = 'NoExists';
+          reject(error);
+        }
+      }).catch(reject);
+  });
+};
+
 module.exports = mongoose.model('Meme', memeSchema);
