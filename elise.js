@@ -1,6 +1,6 @@
 let dotenv;
 /* eslint-disable global-require*/
-if (process.env.NODE_ENV.toLowerCase() !== 'production') {
+if (!process.env.NODE_ENV) {
   dotenv = require('dotenv');
   dotenv.config();
 }
