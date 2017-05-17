@@ -84,7 +84,8 @@ module.exports = class Play extends Command {
   async addToQueue({ guild, member }, statusMessage, video) {
     const guildID = guild.id;
     if (!this.client.addToQueue(guildID, video)) {
-      statusMessage.edit('Queue is at maximum capacity !');
+      // statusMessage.edit('Queue is at maximum capacity !');
+      statusMessage.edit('Either the queue is full or you are trying to add a song more than once !');
       return;
     }
     if (!this.client.isMusicPlaying(guildID)) {

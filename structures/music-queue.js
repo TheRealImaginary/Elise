@@ -20,6 +20,9 @@ module.exports = class MusicQueue {
   add(item) {
     if (this.queue.length === MAX_QUEUE_SIZE) {
       return false;
+    } else if (this.queue.filter(song => song.title === item.title
+      || song.url === item.url).length > 0) {
+      return false;
     }
     this.queue.push(item);
     return true;
