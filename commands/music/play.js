@@ -28,12 +28,16 @@ module.exports = class Play extends Command {
   async run(message, { song }) {
     if (this.client.checkMusicQueue(message.member, message.guild)) {
       const statusMessage = await message.say('Getting Video Info... !');
+      // We can allow index
+      if (/channel/.test(song) || /playlist/.test(song) || /index/.test(song)) {
+        statusMessage.edit('You can only use videoes ! Playlists and Channels are not allowed !');
+        return;
+      }
       try {
         if (youtubeRegex.test(song)) {
           const video = await this.getVideo(message.author, song);
           this.addToQueue(message, statusMessage, video);
-        } else {
-          console.log(1);
+        } else if (!/youtube.com/.test(song)) {
           const video = await this.getVideoByName(message.author, song);
           this.addToQueue(message, statusMessage, video);
         }
