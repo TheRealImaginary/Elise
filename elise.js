@@ -3,7 +3,7 @@ const { Constants } = require('discord.js');
 
 dotenv.config();
 
-const Client = require('./util/bot');
+const Client = require('./structures/bot');
 
 const Events = Object.values(Constants.Events);
 
@@ -14,7 +14,7 @@ const bot = new Client({
   unknownCommandResponse: false,
   owner: OWNER,
   disableEveryone: true,
-  disabledEvents: Events.filter(event => !ENABLED_EVENTS.split(',').includes(event))
+  disabledEvents: Events.filter(event => !ENABLED_EVENTS.split(',').includes(event)),
 });
 
 bot.on('ready', () => console.log('Bot Ready!'));
@@ -28,7 +28,7 @@ bot.registry
     ['mod', 'Mod'],
     ['music', 'Music'],
     ['util', 'Util'],
-    ['weather', 'Weather']
+    ['weather', 'Weather'],
   ])
   .registerCommandsIn(`${__dirname}/commands`);
 

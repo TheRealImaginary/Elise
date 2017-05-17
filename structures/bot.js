@@ -1,6 +1,6 @@
 const { Client } = require('discord.js-commando');
 const { RichEmbed } = require('discord.js');
-const dataBase = require('../structures/database');
+const dataBase = require('./database');
 const MusicQueue = require('./music-queue');
 
 module.exports = class Bot extends Client {
@@ -19,8 +19,8 @@ module.exports = class Bot extends Client {
 
   checkMusicQueue(member, guild) {
     const queue = this.queues.get(guild);
-    return (queue && queue.connection && queue.isPlaying && queue.connection.channel.members.has(member.id)) ||
-      (member.voiceChannel);
+    return (queue && queue.connection && queue.isPlaying &&
+      queue.connection.channel.members.has(member.id)) || (member.voiceChannel);
   }
 
   addToQueue(guild, song) {
