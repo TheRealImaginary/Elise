@@ -1,11 +1,11 @@
 {
   "name": "elise",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A bot for discord.",
   "main": "elise.js",
   "scripts": {
-    "start": "node elise.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node --harmony elise.js",
+    "lint": "node_modules/.bin/eslint ."
   },
   "keywords": [
     "bot",
@@ -16,15 +16,24 @@
   "author": "Mazen Magdy",
   "license": "",
   "dependencies": {
-    "chrono-node": "^1.2.5",
-    "cleverbot-node": "^0.2.5",
-    "discord.js": "github:hydrabolt/discord.js#indev-prism",
-    "erlpack": "github:hammerandchisel/erlpack",
-    "request": "^2.79.0",
-    "xml2js": "^0.4.17",
-    "ytdl-core": "^0.8.1"
+    "Sherlock": "github:neilgupta/Sherlock",
+    "axios": "^0.16.1",
+    "discord.js": "github:hydrabolt/discord.js",
+    "discord.js-commando": "^0.9.0",
+    "html-to-text": "^3.2.0",
+    "moment": "^2.18.1",
+    "mongoose": "^4.9.9",
+    "node-opus": "^0.2.6",
+    "simple-youtube-api": "^2.1.0",
+    "ytdl-core": "^0.14.0"
   },
   "engines": {
     "node": ">=7.0.0"
+  },
+  "devDependencies": {
+    "dotenv": "^4.0.0",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb-base": "^11.2.0",
+    "eslint-plugin-import": "^2.2.0"
   }
 }
