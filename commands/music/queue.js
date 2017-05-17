@@ -21,7 +21,7 @@ module.exports = class Queue extends Command {
   }
 
   run(message, { page }) {
-    const queue = this.client.getMusicQueue(message.guild.id).queue || [];
+    const queue = this.client.getMusicQueue(message.guild.id).queue;
     console.log(page);
     if (page) {
       this.paginate(message, queue, page);
@@ -33,12 +33,12 @@ module.exports = class Queue extends Command {
 
   paginate(message, queue, page) {
     const queueSize = queue.length;
-    if (queueSize < (page - 1) * 10) {
+    if (queueSize === 0 || queueSize < (page - 1) * 10) {
       message.say('We do not have that many songs');
     } else {
       const currentPage = queue.slice((page - 1) * 10, page * 10);
       const songList = currentPage.reduce((acc, video, idx) => {
-        acc += `⬧${idx + 1}. [${video.title}](${video.url})\n`;
+        acc += `⬧${idx + 1}. [${video.title}](${video.url}) - ${video.duration}\n`;
         return acc;
       }, '');
       const embed = new RichEmbed();

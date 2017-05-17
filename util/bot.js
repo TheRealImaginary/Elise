@@ -36,6 +36,9 @@ module.exports = class Bot extends Client {
   }
 
   getMusicQueue(guild) {
+    if (!this.queues.has(guild)) {
+      this.queues.set(guild, new MusicQueue());
+    }
     return this.queues.get(guild);
   }
 

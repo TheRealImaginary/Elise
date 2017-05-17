@@ -21,6 +21,7 @@
     "discord.js-commando": "^0.9.0",
     "html-to-text": "^3.2.0",
     "moment": "^2.18.1",
+    "mongoose": "^4.9.9",
     "node-opus": "^0.2.6",
     "simple-youtube-api": "^2.1.0",
     "ytdl-core": "^0.14.0"
