@@ -1,10 +1,14 @@
 const { Client } = require('discord.js-commando');
 const { RichEmbed } = require('discord.js');
+const dataBase = require('../structures/database');
 const MusicQueue = require('./music-queue');
 
 module.exports = class Bot extends Client {
   constructor(options) {
     super(options);
+
+    this.db = dataBase;
+    this.db.connect();
 
     this.trivia = false;
 
