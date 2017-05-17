@@ -4,11 +4,11 @@ module.exports = class Leave extends Command {
   constructor(client) {
     super(client, {
       name: 'leave',
-      aliases: [],
+      aliases: ['stop', 'stahp'],
       autoAliases: false,
       group: 'music',
       memberName: 'leave',
-      description: 'Bot will leave the Voice Channel'
+      description: 'Bot will leave the Voice Channel. Only Bot Owner can use this command !',
     });
   }
 

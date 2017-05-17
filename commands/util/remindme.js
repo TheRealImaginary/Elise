@@ -6,7 +6,7 @@ module.exports = class RemindMeCommand extends Command {
   constructor(client) {
     super(client, {
       name: 'remindme',
-      aliases: [],
+      aliases: ['reminder'],
       autoAliases: false,
       group: 'util',
       memberName: 'remindme',
@@ -24,13 +24,13 @@ module.exports = class RemindMeCommand extends Command {
         },
         parse(duration) {
           return Sherlock.parse(duration).startDate;
-        }
+        },
       }, {
         key: 'content',
         prompt: 'What would you like me to remind you of ?',
         default: '',
-        type: 'string'
-      }]
+        type: 'string',
+      }],
     });
   }
 

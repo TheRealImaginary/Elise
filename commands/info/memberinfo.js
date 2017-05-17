@@ -5,7 +5,7 @@ module.exports = class MemberInfo extends Command {
   constructor(client) {
     super(client, {
       name: 'memberinfo',
-      aliases: [],
+      aliases: ['minfo', 'member-info', 'member'],
       autoAliases: false,
       group: 'info',
       memberName: 'memberinfo',
@@ -13,9 +13,9 @@ module.exports = class MemberInfo extends Command {
       args: [{
         key: 'member',
         prompt: 'Which member do you want to know more about ?',
-        type: 'member'
+        type: 'member',
       }],
-      guildOnly: true
+      guildOnly: true,
     });
   }
 
@@ -32,15 +32,16 @@ module.exports = class MemberInfo extends Command {
     if (member) {
       const embed = new RichEmbed();
       const presence = member.user.presence;
-      embed.setThumbnail(member.user.avatarURL);
+      embed.setThumbnail(member.user.displayAvatarURL);
       embed.setTitle('__**Member Info**__');
       embed.setAuthor(member.user.username, member.user.avatarURL);
       embed.addField('➤Member', `⬧Nickname: ${member.nickname || 'None'}\n⬧Joined On: ${member.joinedAt}\n⬧Roles: ${member.roles.size}`);
       embed.addField('➤User', `⬧Created On: ${member.user.createdAt}\n⬧Status: ${presence.status}\n⬧Game: ${presence.game ? presence.game.name : 'None'}\n⬧Intelligent: ${member.user.bot ? 'Not Yet!' : 'Yes'}`);
       embed.setTimestamp(new Date());
-      embed.setFooter(this.client.user.username, this.client.user.avatarURL);
+      embed.setFooter(this.client.user.username, this.client.user.displayAvatarURL);
       embed.setColor('#FF0000');
       return embed;
     }
+    return null;
   }
 };

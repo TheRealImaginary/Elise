@@ -1,17 +1,19 @@
 const { Command } = require('discord.js-commando');
 
-const musicQueue = require('../../util/music-queue');
-
 module.exports = class Resume extends Command {
   constructor(client) {
     super(client, {
       name: 'resume',
-      aliases: [],
+      aliases: ['continue'],
       autoAliases: false,
       group: 'music',
       memberName: 'resume',
       description: 'Resumes the music if any !',
-      guildOnly: true
+      throttling: {
+        usages: 1,
+        duration: 5,
+      },
+      guildOnly: true,
     });
   }
 
@@ -20,6 +22,7 @@ module.exports = class Resume extends Command {
     if (connection) {
       if (connection.dispatcher.paused) {
         connection.dispatcher.resume();
+        message.say(`${message.member.displayName} has resumed the music !`);
       } else {
         message.say('Song is not paused !');
       }

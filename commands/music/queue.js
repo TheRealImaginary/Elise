@@ -5,7 +5,7 @@ module.exports = class Queue extends Command {
   constructor(client) {
     super(client, {
       name: 'queue',
-      aliases: [],
+      aliases: ['music-list', 'song-list', 'song-queue'],
       autoAliases: false,
       group: 'music',
       memberName: 'queue',
@@ -14,9 +14,9 @@ module.exports = class Queue extends Command {
         key: 'page',
         prompt: 'Which page do you want to view ?!',
         default: '0',
-        type: 'integer'
+        type: 'integer',
       }],
-      guildOnly: true
+      guildOnly: true,
     });
   }
 

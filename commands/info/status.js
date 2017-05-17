@@ -4,11 +4,11 @@ module.exports = class Status extends Command {
   constructor(client) {
     super(client, {
       name: 'status',
-      aliases: [],
+      aliases: ['bot-status', 'elise-status', 'uptime'],
       autoAliases: false,
       group: 'info',
       memberName: 'status',
-      description: 'Displays Bot Status!'
+      description: 'Displays Bot Status!',
     });
   }
 

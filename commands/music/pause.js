@@ -1,7 +1,5 @@
 const { Command } = require('discord.js-commando');
 
-const musicQueue = require('../../util/music-queue');
-
 module.exports = class Pause extends Command {
   constructor(client) {
     super(client, {
@@ -11,7 +9,11 @@ module.exports = class Pause extends Command {
       group: 'music',
       memberName: 'pause',
       description: 'Pauses the song currently playing !',
-      guildOnly: true
+      throttling: {
+        usages: 1,
+        duration: 5,
+      },
+      guildOnly: true,
     });
   }
 

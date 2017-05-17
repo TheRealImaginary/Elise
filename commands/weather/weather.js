@@ -16,12 +16,12 @@ module.exports = class Weather extends Command {
       args: [{
         key: 'city',
         prompt: 'What city would you like to know the weather in ?',
-        type: 'string'
+        type: 'string',
       }],
       throttling: {
         usages: 2,
-        duration: 5
-      }
+        duration: 5,
+      },
     });
   }
 
@@ -56,7 +56,7 @@ module.exports = class Weather extends Command {
       embed.addField('➤Miscellaneous', `⬧Location: ${data.name},${sys.country}\n⬧Sunrise: ${new Date(sys.sunrise * 1000)}\n⬧Sunset: ${new Date(sys.sunset * 1000)}`);
       embed.setColor('#FF0000');
       embed.setTimestamp(new Date());
-      embed.setFooter(this.client.user.username, this.client.user.avatarURL);
+      embed.setFooter(this.client.user.username, this.client.user.displayAvatarURL);
       return embed;
     }
     return null;

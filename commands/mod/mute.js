@@ -12,9 +12,9 @@ module.exports = class Mute extends Command {
       args: [{
         key: 'victim',
         prompt: 'Which member do you want me to mute ?',
-        type: 'member'
+        type: 'member',
       }],
-      guildOnly: true
+      guildOnly: true,
     });
   }
 

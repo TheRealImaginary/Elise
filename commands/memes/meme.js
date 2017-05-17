@@ -14,15 +14,15 @@ module.exports = class MemeCommand extends Command {
       args: [{
         key: 'name',
         prompt: 'Which meme would you like to use ?!',
-        type: 'string'
-      }]
+        type: 'string',
+      }],
     });
   }
 
   run(message, { name }) {
     Meme.findOne({ name })
       .exec()
-      .then(meme => {
+      .then((meme) => {
         if (meme) {
           message.embed(this.createMeme(message.author, meme));
           meme.use();
@@ -30,7 +30,7 @@ module.exports = class MemeCommand extends Command {
           message.say('No such meme exists, Maybe you can save one ?!');
         }
       })
-      .catch(err => {
+      .catch((err) => {
         message.say('An Error Occured trying to fetch that meme !');
         console.log('Mongoose Error Saving Meme !');
         console.log(err);

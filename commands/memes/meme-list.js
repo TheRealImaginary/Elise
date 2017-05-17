@@ -6,7 +6,7 @@ module.exports = class MemeList extends Command {
   constructor(client) {
     super(client, {
       name: 'meme-list',
-      aliases: [],
+      aliases: ['list-meme', 'memes'],
       autoAliases: false,
       group: 'memes',
       memberName: 'meme-list',
@@ -15,8 +15,8 @@ module.exports = class MemeList extends Command {
         key: 'page',
         prompt: 'Which page would you like to view ?!',
         default: '0',
-        type: 'integer'
-      }]
+        type: 'integer',
+      }],
     });
   }
 

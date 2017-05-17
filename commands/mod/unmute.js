@@ -12,9 +12,9 @@ module.exports = class UnMute extends Command {
       args: [{
         key: 'ally',
         prompt: 'Which member do you want me to mute ?',
-        type: 'member'
+        type: 'member',
       }],
-      guildOnly: true
+      guildOnly: true,
     });
   }
 

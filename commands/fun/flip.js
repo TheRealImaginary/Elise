@@ -4,11 +4,11 @@ module.exports = class Flip extends Command {
   constructor(client) {
     super(client, {
       name: 'flip',
-      aliases: [],
+      aliases: ['flip-table', 'table-flip'],
       autoAliases: false,
       group: 'fun',
       memberName: 'flip',
-      description: 'Flips the Tables!'
+      description: 'Flips the Tables!',
     });
   }
 

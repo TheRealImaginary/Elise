@@ -4,12 +4,12 @@ module.exports = class Volume extends Command {
   constructor(client) {
     super(client, {
       name: 'volume',
-      aliases: [],
+      aliases: ['vol'],
       autoAliases: false,
       group: 'music',
       memberName: 'volume',
       description: 'Sets volume of music, either use +/- up/down or a number from 1-10. Leave empty to reset to default',
-      guildOnly: true
+      guildOnly: true,
     });
   }
 

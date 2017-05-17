@@ -13,8 +13,8 @@ module.exports = class Quote extends Command {
       description: 'Displays a random quote',
       throttling: {
         usages: 2,
-        duration: 5
-      }
+        duration: 5,
+      },
     });
   }
 

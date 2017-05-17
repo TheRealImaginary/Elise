@@ -5,7 +5,7 @@ module.exports = class Flip extends Command {
   constructor(client) {
     super(client, {
       name: 'dice',
-      aliases: [],
+      aliases: ['roll', 'roll-dice'],
       autoAliases: false,
       group: 'fun',
       memberName: 'dice',
@@ -18,8 +18,8 @@ module.exports = class Flip extends Command {
         validator(faces) {
           const number = parseInt(faces, 10);
           return !isNaN(number) && number > 1;
-        }
-      }]
+        },
+      }],
     });
   }
 

@@ -1,0 +1,25 @@
+{
+  "extends": "eslint-config-airbnb-base",
+  "env": {
+    "node": true
+  },
+  "rules": {
+    "no-console": 0,
+    "no-param-reassign": 0,
+    "no-underscore-dangle": 0,
+    "import/no-extraneous-dependencies": 0,
+    "class-methods-use-this": [
+      "error",
+      {
+        "exceptMethods": [
+          "run",
+          "getWeather",
+          "getQuote",
+          "hasPermissions",
+          "normalize",
+          "handleError"
+        ]
+      }
+    ]
+  }
+}

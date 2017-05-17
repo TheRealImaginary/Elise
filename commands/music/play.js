@@ -19,9 +19,9 @@ module.exports = class Play extends Command {
       args: [{
         key: 'song',
         prompt: 'What would you like to listen to ?',
-        type: 'string'
+        type: 'string',
       }],
-      guildOnly: true
+      guildOnly: true,
     });
   }
 
@@ -54,7 +54,7 @@ module.exports = class Play extends Command {
   getVideo(user, song) {
     return new Promise((resolve, reject) => {
       api.getVideo(song)
-        .then(video => {
+        .then((video) => {
           if (video.durationSeconds === 0) {
             const error = new Error('You cannot play live videos !');
             error.name = 'Live';
@@ -116,7 +116,7 @@ module.exports = class Play extends Command {
         console.log('Response');
         statusMessage.edit('', { embed: this.nowPlaying(video) });
       });
-      stream.on('error', err => {
+      stream.on('error', (err) => {
         console.log('An Error Occured while downloading !');
         console.log(err);
         statusMessage.edit('An Error Occured downloading the video ! :(');
@@ -126,13 +126,13 @@ module.exports = class Play extends Command {
       });
       const dispatcher = connection.playStream(stream);
       dispatcher.setVolumeLogarithmic(0.25);
-      dispatcher.on('error', err => {
+      dispatcher.on('error', (err) => {
         console.log('An Error Occured playing song !');
         console.log(err);
         statusMessage.edit('An Error Occured playing song ! :(');
       });
 
-      dispatcher.on('end', async reason => {
+      dispatcher.on('end', async (reason) => {
         if (reason) {
           console.log(`Stream Ended because of ${reason}`);
           statusMessage = await statusMessage.channel.send('Shifting Queue... !');
@@ -153,7 +153,7 @@ module.exports = class Play extends Command {
     embed.addField('➤Details', `⬧[${video.title}](${video.url})\n⬧${video.duration}`);
     embed.setColor('#FF0000');
     embed.setAuthor(video.addedBy.author, video.addedBy.avatar);
-    embed.setFooter(this.client.user.username, this.client.user.avatarURL);
+    embed.setFooter(this.client.user.username, this.client.user.displayAvatarURL);
     embed.setTimestamp(new Date());
     return embed;
   }
@@ -166,8 +166,8 @@ module.exports = class Play extends Command {
       thumbnail: `https://img.youtube.com/vi/${video.id}/hqdefault.jpg`,
       addedBy: {
         author: user.tag,
-        avatar: user.displayAvatarURL
-      }
+        avatar: user.displayAvatarURL,
+      },
     };
   }
 };

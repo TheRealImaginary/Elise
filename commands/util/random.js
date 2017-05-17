@@ -5,7 +5,7 @@ module.exports = class Random extends Command {
   constructor(client) {
     super(client, {
       name: 'random',
-      aliases: [],
+      aliases: ['randomize', 'choose'],
       autoAliases: false,
       group: 'util',
       memberName: 'random',
@@ -19,8 +19,8 @@ module.exports = class Random extends Command {
         },
         parse(list) {
           return list.split(',');
-        }
-      }]
+        },
+      }],
     });
   }
 
@@ -28,7 +28,7 @@ module.exports = class Random extends Command {
     const item = randomizer(items);
     if (item) {
       if (Math.random() < 0.5) {
-        message.say('The Random choice is ' + item.trim());
+        message.say(`The Random choice is ${item.trim()} !`);
       } else {
         message.say(`Go ${item.trim()}, I choose you.`);
       }

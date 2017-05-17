@@ -4,7 +4,8 @@
   "description": "A bot for discord.",
   "main": "elise.js",
   "scripts": {
-    "start": "node --harmony elise.js"
+    "start": "node --harmony elise.js",
+    "lint": "node_modules/.bin/eslint ."
   },
   "keywords": [
     "bot",
@@ -31,20 +32,8 @@
   },
   "devDependencies": {
     "dotenv": "^4.0.0",
-    "xo": "^0.18.2"
-  },
-  "xo": {
-    "rules": {
-      "no-unused-vars": [
-        "warn"
-      ],
-      "object-curly-spacing": [
-        "warn"
-      ],
-      "indent": [
-        "error",
-        2
-      ]
-    }
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb-base": "^11.2.0",
+    "eslint-plugin-import": "^2.2.0"
   }
 }

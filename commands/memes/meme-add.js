@@ -5,7 +5,7 @@ module.exports = class MemeAdd extends Command {
   constructor(client) {
     super(client, {
       name: 'meme-add',
-      aliases: [],
+      aliases: ['add-meme', 'put-meme'],
       autoAliases: false,
       group: 'memes',
       memberName: 'meme-add',
@@ -14,13 +14,13 @@ module.exports = class MemeAdd extends Command {
         key: 'name',
         prompt: 'What would you like to name the meme ?!',
         type: 'string',
-        min: 1
+        min: 1,
       }, {
         key: 'url',
         prompt: 'Where is your meme ?!',
         type: 'string',
-        min: 1
-      }]
+        min: 1,
+      }],
     });
   }
 
@@ -31,7 +31,7 @@ module.exports = class MemeAdd extends Command {
       addedBy: message.author.id,
     }).save()
       .then(() => message.say('Meme has been registered !'))
-      .catch(err => {
+      .catch((err) => {
         if (err.code && err.code === 11000) {
           message.say('A Meme with the same name already exists !');
         } else {

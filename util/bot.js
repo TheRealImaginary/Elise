@@ -48,7 +48,7 @@ module.exports = class Bot extends Client {
 
   get status() {
     const embed = new RichEmbed();
-    const uptime = this.uptime;
+    const uptime = Math.floor(this.uptime / 1000);
     const hours = Math.floor(uptime / 3600);
     const minutes = Math.floor((uptime % 3600) / 60);
     const seconds = (uptime % 3600) % 60;
@@ -60,7 +60,7 @@ module.exports = class Bot extends Client {
     embed.addField('➤Misc', `⬧Commands Executed: ${this.commandsExecuted}`);
     embed.setColor('#FF0000');
     embed.setTimestamp(new Date());
-    embed.setFooter(this.user.username, this.user.avatarURL);
+    embed.setFooter(this.user.username, this.user.displayAvatarURL);
     return embed;
   }
 };

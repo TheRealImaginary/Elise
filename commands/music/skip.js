@@ -10,7 +10,8 @@ module.exports = class Skip extends Command {
       group: 'music',
       memberName: 'skip',
       description: `Skips Music if 3 members or less are in channel, otherwise starts a vote, skips when 
-                    more than half the participants votes positively. Voting phase lasts for 10 seconds.`
+                    more than half the participants votes positively. Voting phase lasts for 10 seconds.`,
+      guildOnly: true,
     });
 
     this.votes = new Map();
@@ -43,7 +44,7 @@ module.exports = class Skip extends Command {
           if (queue.connection && queue.connection.dispatcher) {
             const memberCount = queue.connection.channel.members.size - 1;
             const voteCount = this.votes.get(guildID).size;
-            if (voteCount > memberCount >> 1) {
+            if (voteCount > memberCount / 2) {
               message.say('Skipping a song !');
               queue.connection.dispatcher.end('Skipping a Song!');
             } else {
@@ -52,7 +53,7 @@ module.exports = class Skip extends Command {
           }
           this.votes.delete(guildID);
         },
-        duration: 10000
+        duration: 10000,
       };
       this.votes.set(guildID, new Vote(options));
     }

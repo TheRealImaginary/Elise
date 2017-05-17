@@ -4,11 +4,11 @@ module.exports = class Coin extends Command {
   constructor(client) {
     super(client, {
       name: 'coin',
-      aliases: [],
+      aliases: ['coin-flip', 'flip-coin'],
       autoAliases: false,
       group: 'fun',
       memberName: 'coin',
-      description: 'Flips a coin !'
+      description: 'Flips a coin !',
     });
   }
 
