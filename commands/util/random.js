@@ -9,7 +9,7 @@ module.exports = class Random extends Command {
       autoAliases: false,
       group: 'util',
       memberName: 'random',
-      description: 'Chooses a random item for a list',
+      description: 'Chooses a random item from a list',
       args: [{
         key: 'items',
         prompt: 'What choices do we have ?!',

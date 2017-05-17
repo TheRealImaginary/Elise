@@ -9,7 +9,7 @@ module.exports = class Queue extends Command {
       autoAliases: false,
       group: 'music',
       memberName: 'queue',
-      description: 'Shows the current queue',
+      description: 'Shows the number of songs currently in queue! Specify a page for content!',
       args: [{
         key: 'page',
         prompt: 'Which page do you want to view ?!',

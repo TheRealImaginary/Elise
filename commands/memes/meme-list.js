@@ -10,7 +10,7 @@ module.exports = class MemeList extends Command {
       autoAliases: false,
       group: 'memes',
       memberName: 'meme-list',
-      description: 'Lists the count of memes or content of a page',
+      description: 'Shows the count of memes! Specify a page for content!',
       args: [{
         key: 'page',
         prompt: 'Which page would you like to view ?!',
