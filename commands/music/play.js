@@ -30,7 +30,7 @@ module.exports = class Play extends Command {
       const statusMessage = await message.say('Getting Video Info... !');
       // We can allow index
       if (/channel/.test(song) || /playlist/.test(song) || /index/.test(song)) {
-        statusMessage.edit('You can only use videoes ! Playlists and Channels are not allowed !');
+        statusMessage.edit('You can only use videos ! Playlists and Channels are not allowed !');
         return;
       }
       try {
@@ -97,6 +97,7 @@ module.exports = class Play extends Command {
         this.client.getMusicQueue(guildID).connection = connection;
         this.play(guildID, statusMessage, video);
       } catch (err) {
+        console.log('Join Error');
         console.log(err);
         statusMessage.edit('An Error Occured Joining your channel !');
       }
@@ -146,6 +147,7 @@ module.exports = class Play extends Command {
         }
       });
     } catch (err) {
+      console.log('Play/Download Error');
       console.log(err);
       statusMessage.edit('Error Occured Downloading Video !');
     }
