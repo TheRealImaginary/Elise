@@ -92,13 +92,11 @@ module.exports = class Play extends Command {
       this.client.setMusicStatus(guildID, true);
       try {
         statusMessage = await statusMessage.edit('Joining Your Channel... !');
-        console.log(member.voiceChannel.name);
         const connection = await member.voiceChannel.join();
         this.client.getMusicQueue(guildID).connection = connection;
         this.play(guildID, statusMessage, video);
       } catch (err) {
-        console.log('Join Error');
-        console.log(err);
+        this.client.emit('error', err);
         statusMessage.edit('An Error Occured Joining your channel !');
       }
       return;
@@ -115,7 +113,6 @@ module.exports = class Play extends Command {
     const queue = this.client.getMusicQueue(guild);
     try {
       const connection = queue.connection;
-      console.log('Downloading Music.. !');
       statusMessage = await statusMessage.edit('Downloading Music... !');
       const stream = ytdl(video.url, { quality: 'lowest', filter: 'audioonly' });
       stream.on('response', async () => {
@@ -123,8 +120,7 @@ module.exports = class Play extends Command {
         statusMessage.edit('', { embed: this.nowPlaying(video) });
       });
       stream.on('error', (err) => {
-        console.log('An Error Occured while downloading !');
-        console.log(err);
+        this.client.emit('error', err);
         statusMessage.edit('An Error Occured downloading the video ! :(');
       });
       stream.on('end', () => {
@@ -133,8 +129,7 @@ module.exports = class Play extends Command {
       const dispatcher = connection.playStream(stream);
       dispatcher.setVolumeLogarithmic(0.25);
       dispatcher.on('error', (err) => {
-        console.log('An Error Occured playing song !');
-        console.log(err);
+        this.client.emit('error', err);
         statusMessage.edit('An Error Occured playing song ! :(');
       });
 
@@ -147,8 +142,7 @@ module.exports = class Play extends Command {
         }
       });
     } catch (err) {
-      console.log('Play/Download Error');
-      console.log(err);
+      this.client.emit('error', err);
       statusMessage.edit('Error Occured Downloading Video !');
     }
   }

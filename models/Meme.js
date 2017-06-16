@@ -28,8 +28,7 @@ memeSchema.methods.use = function use() {
   this.uses += 1;
   this.save()
     .catch((err) => {
-      console.log('An Error Occured Incrementing Uses !');
-      console.log(err);
+      this.client.emit('error', err);
     });
 };
 

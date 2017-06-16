@@ -51,7 +51,6 @@ module.exports = class MemeList extends Command {
 
   handleError(message, error) {
     message.say('An Error Occured !');
-    console.log('An Error Occured Counting/Viewing !');
-    console.log(error);
+    this.client.emit('error', error);
   }
 };

@@ -36,8 +36,7 @@ module.exports = class MemeAdd extends Command {
           message.say('A Meme with the same name already exists !');
         } else {
           message.say('An Error Occured trying to save your meme !');
-          console.log('Mongoose Error Saving Meme !');
-          console.log(err);
+          this.client.emit('error', err);
         }
       });
   }

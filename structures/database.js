@@ -1,3 +1,4 @@
+const winston = require('winston');
 const mongoose = require('mongoose');
 
 mongoose.Promise = Promise;
@@ -8,10 +9,9 @@ module.exports = class Database {
 
   static connect() {
     mongoose.connect(DB_URL)
-      .then(() => console.log('Connected to the Database !'))
+      .then(() => winston.info('[MONGODB]: Connected to the Database !'))
       .catch((err) => {
-        console.log('An Error Occured connecting to the Database !');
-        console.log(err);
+        winston.error(`[MONGODB]: An Error Occured connecting to the Database \n${err}!`);
       });
   }
 };
