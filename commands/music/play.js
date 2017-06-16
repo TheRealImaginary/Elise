@@ -30,11 +30,7 @@ module.exports = class Play extends Command {
       const statusMessage = await message.say('Getting Video Info... !');
       // We can allow index
       if (/channel/.test(song) || /playlist/.test(song) || /index/.test(song)) {
-<<<<<<< HEAD
-        statusMessage.edit('You can only use videoes ! Playlists and Channels are not allowed !');
-=======
         statusMessage.edit('You can only use videos ! Playlists and Channels are not allowed !');
->>>>>>> e8ec1220c3f1015b6c1f8abada3444c8cffaed81
         return;
       }
       try {
