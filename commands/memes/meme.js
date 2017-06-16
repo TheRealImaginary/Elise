@@ -32,8 +32,7 @@ module.exports = class MemeCommand extends Command {
       })
       .catch((err) => {
         message.say('An Error Occured trying to fetch that meme !');
-        console.log('Mongoose Error Saving Meme !');
-        console.log(err);
+        this.client.emit('error', err);
       });
   }
 

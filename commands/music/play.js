@@ -1,4 +1,5 @@
 const moment = require('moment');
+const winston = require('winston');
 const Youtube = require('simple-youtube-api');
 const ytdl = require('ytdl-core');
 const { Command } = require('discord.js-commando');
@@ -92,13 +93,11 @@ module.exports = class Play extends Command {
       this.client.setMusicStatus(guildID, true);
       try {
         statusMessage = await statusMessage.edit('Joining Your Channel... !');
-        console.log(member.voiceChannel.name);
         const connection = await member.voiceChannel.join();
         this.client.getMusicQueue(guildID).connection = connection;
         this.play(guildID, statusMessage, video);
       } catch (err) {
-        console.log('Join Error');
-        console.log(err);
+        this.client.emit('error', err);
         statusMessage.edit('An Error Occured Joining your channel !');
       }
       return;
@@ -115,40 +114,36 @@ module.exports = class Play extends Command {
     const queue = this.client.getMusicQueue(guild);
     try {
       const connection = queue.connection;
-      console.log('Downloading Music.. !');
       statusMessage = await statusMessage.edit('Downloading Music... !');
       const stream = ytdl(video.url, { quality: 'lowest', filter: 'audioonly' });
       stream.on('response', async () => {
-        console.log('Response');
+        winston.info('[ELISE]: Response');
         statusMessage.edit('', { embed: this.nowPlaying(video) });
       });
       stream.on('error', (err) => {
-        console.log('An Error Occured while downloading !');
-        console.log(err);
+        this.client.emit('error', err);
         statusMessage.edit('An Error Occured downloading the video ! :(');
       });
       stream.on('end', () => {
-        console.log('Finished!');
+        winston.info('[ELISE]: Song Ended !');
       });
       const dispatcher = connection.playStream(stream);
       dispatcher.setVolumeLogarithmic(0.25);
       dispatcher.on('error', (err) => {
-        console.log('An Error Occured playing song !');
-        console.log(err);
+        this.client.emit('error', err);
         statusMessage.edit('An Error Occured playing song ! :(');
       });
 
       dispatcher.on('end', async (reason) => {
         if (reason) {
-          console.log(`Stream Ended because of ${reason}`);
+          winston.info(`[ELISE]: Stream Ended because of ${reason}`);
           statusMessage = await statusMessage.channel.send('Shifting Queue... !');
           queue.shift();
           this.play(guild, statusMessage, queue.song);
         }
       });
     } catch (err) {
-      console.log('Play/Download Error');
-      console.log(err);
+      this.client.emit('error', err);
       statusMessage.edit('Error Occured Downloading Video !');
     }
   }

@@ -28,8 +28,7 @@ module.exports = class MemeDelete extends Command {
           message.say(err.message);
         } else {
           message.say('An Error Occured Deleting the Meme !');
-          console.log('An Error Occured Deleting the Meme !');
-          console.log(err);
+          this.client.emit('error', err);
         }
       });
   }
