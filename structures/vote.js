@@ -9,7 +9,7 @@ module.exports = class Vote {
 
     /**
      * Timeout Object returned by `setTimeout`.
-     * @type {Object}
+     * @type {object}
      */
     this.timeout = setTimeout(options.done, options.duration);
   }
