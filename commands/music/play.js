@@ -1,4 +1,5 @@
 const moment = require('moment');
+const winston = require('winston');
 const Youtube = require('simple-youtube-api');
 const ytdl = require('ytdl-core');
 const { Command } = require('discord.js-commando');
@@ -116,7 +117,7 @@ module.exports = class Play extends Command {
       statusMessage = await statusMessage.edit('Downloading Music... !');
       const stream = ytdl(video.url, { quality: 'lowest', filter: 'audioonly' });
       stream.on('response', async () => {
-        console.log('Response');
+        winston.info('[ELISE]: Response');
         statusMessage.edit('', { embed: this.nowPlaying(video) });
       });
       stream.on('error', (err) => {
@@ -124,7 +125,7 @@ module.exports = class Play extends Command {
         statusMessage.edit('An Error Occured downloading the video ! :(');
       });
       stream.on('end', () => {
-        console.log('Finished!');
+        winston.info('[ELISE]: Song Ended !');
       });
       const dispatcher = connection.playStream(stream);
       dispatcher.setVolumeLogarithmic(0.25);
@@ -135,7 +136,7 @@ module.exports = class Play extends Command {
 
       dispatcher.on('end', async (reason) => {
         if (reason) {
-          console.log(`Stream Ended because of ${reason}`);
+          winston.info(`[ELISE]: Stream Ended because of ${reason}`);
           statusMessage = await statusMessage.channel.send('Shifting Queue... !');
           queue.shift();
           this.play(guild, statusMessage, queue.song);

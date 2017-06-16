@@ -29,7 +29,7 @@ const bot = new Client({
   disabledEvents: Events.filter(event => !ENABLED_EVENTS.split(',').includes(event)),
 });
 
-bot.on('ready', () => winston.info('Elise is ready !'));
+bot.on('ready', () => winston.info('[ELISE]: Elise is ready !'));
 
 bot.on('error', err => winston.error(err));
 
