@@ -25,11 +25,6 @@ module.exports = class Bot extends Client {
      */
     this.commandsExecuted = 0;
 
-    this.on('commandError', (command, err, { content }, args) => {
-      console.log(`Error executing command ${command.name} on inputs ${args} with content ${content}`);
-      console.log(err);
-    });
-
     this.on('commandRun', () => {
       this.commandsExecuted += 1;
     });

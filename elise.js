@@ -31,6 +31,10 @@ const bot = new Client({
 
 bot.on('ready', () => winston.info('[ELISE]: Elise is ready !'));
 
+bot.on('commandError', (command, err, { content }, args) => {
+  winston.error(`Error executing command ${command.name} on inputs ${args} with content ${content}`);
+});
+
 bot.on('error', err => winston.error(err));
 
 bot.registry
