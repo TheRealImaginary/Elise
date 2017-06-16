@@ -24,7 +24,7 @@ module.exports = class Skip extends Command {
       return;
     }
     const memberCount = queue.connection.channel.members.size - 1; // Don't include the bot.
-    if (memberCount <= 0) {
+    if (memberCount <= 3) {
       queue.connection.dispatcher.end('Skipping a Song');
     } else {
       const votes = this.getVotes(message, message.guild.id);

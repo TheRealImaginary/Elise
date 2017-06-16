@@ -11,7 +11,7 @@ module.exports = class MemeDelete extends Command {
       group: 'memes',
       memberName: 'meme-delete',
       description: `Delete a meme. Only the one who created the meme can delete it. However, The Bot Owner
-                    or Server Admins can delete it.`,
+                    or Server Admins are exceptions.`,
       args: [{
         key: 'name',
         prompt: 'What is the name of the Meme you want to purge ?!',

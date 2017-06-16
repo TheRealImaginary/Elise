@@ -1,7 +1,11 @@
-const dotenv = require('dotenv');
-const { Constants } = require('discord.js');
+let dotenv;
+/* eslint-disable global-require*/
+if (!process.env.NODE_ENV) {
+  dotenv = require('dotenv');
+  dotenv.config();
+}
 
-dotenv.config();
+const { Constants } = require('discord.js');
 
 const Client = require('./structures/bot');
 
