@@ -20,6 +20,7 @@
     "axios": "^0.16.1",
     "discord.js": "github:hydrabolt/discord.js",
     "discord.js-commando": "git+https://github.com/Gawdl3y/discord.js-commando.git",
+    "dotenv": "^4.0.0",
     "html-to-text": "^3.2.0",
     "moment": "^2.18.1",
     "mongoose": "^4.9.9",
@@ -32,7 +33,6 @@
     "node": ">=7.0.0"
   },
   "devDependencies": {
-    "dotenv": "^4.0.0",
     "eslint": "^3.19.0",
     "eslint-config-airbnb-base": "^11.2.0",
     "eslint-plugin-import": "^2.2.0"
