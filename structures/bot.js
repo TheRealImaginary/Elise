@@ -20,6 +20,11 @@ module.exports = class Bot extends Client {
     this.queues = new Map();
 
     /**
+     * Games for each player.
+     * @type {Map<string,Game>}
+     */
+    this.games = new Map();
+    /**
      * How Many times a command has been executed.
      * @type {number}
      */

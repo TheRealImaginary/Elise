@@ -38,6 +38,7 @@ bot.registry
   .registerDefaults()
   .registerGroups([
     ['fun', 'Fun'],
+    ['games', 'Games'],
     ['info', 'Info'],
     ['memes', 'Memes'],
     ['mod', 'Mod'],

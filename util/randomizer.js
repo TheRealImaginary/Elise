@@ -11,7 +11,7 @@ function getRandom(low, high) {
 /**
  * Returns a random element from an array.
  * @param {Array<*>|string} list - List from which an element must be chosen.
- * @returns {?any} The Random Element.
+ * @returns {?*} The Random Element.
  */
 function randomizer(list) {
   if (typeof list === 'string') {
@@ -23,7 +23,22 @@ function randomizer(list) {
   return list[getRandom(0, list.length)];
 }
 
+/**
+ * Shuffles an array.
+ * @param {Array<*>} list - The Array to shuffle.
+ */
+function shuffle(list) {
+  const n = list.length;
+  for (let i = 0; i < n; i += 1) {
+    const newIndex = i + (Math.floor(Math.random() * (n - i)));
+    const temp = list[newIndex];
+    list[newIndex] = list[i];
+    list[i] = temp;
+  }
+}
+
 module.exports = {
   randomizer,
   getRandom,
+  shuffle,
 };
