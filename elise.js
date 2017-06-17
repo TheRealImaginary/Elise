@@ -1,9 +1,4 @@
-let dotenv;
-/* eslint-disable global-require*/
-if (!process.env.NODE_ENV) {
-  dotenv = require('dotenv');
-  dotenv.config();
-}
+const dotenv = require('dotenv');
 
 const { Constants } = require('discord.js');
 
@@ -12,6 +7,8 @@ const Client = require('./structures/bot');
 const winston = require('winston');
 
 const Events = Object.values(Constants.Events);
+
+dotenv.config();
 
 const { PREFIX, TOKEN, OWNER, ENABLED_EVENTS } = process.env;
 
