@@ -12,6 +12,7 @@ module.exports = class Game {
 
   /**
    * Plays the corresponding game.
+   * @param {Message} - The Message that triggered the Game.
    */
   play(message) {
     throw new TypeError(`${this.constructor.name} is not implementing play method !`);
