@@ -16,6 +16,11 @@ module.exports = class Hangman extends Game {
      */
     this.word = '';
     /**
+     * Represents the Guessed word so far.
+     * @type {Array<Character>}
+     */
+    this.guess = [];
+    /**
      * Represents the Message to be updated with the answer.
      * @type {?Message}
      */
@@ -36,13 +41,15 @@ module.exports = class Hangman extends Game {
       this.endGame();
       return;
     }
-    this.hangmanMessage = await message.say(this.word.replace(/[a-z]/gi, '_ '));
+    this.guess = this.word.replace(/[a-z]/gi, '_ ').split(' ');
+    this.hangmanMessage = await message.say(this.guess.join(' '));
+
   }
 
   async getWord(message) {
     const { data } = await axios.get('http://developer.wordnik.com/v4/words.json/randomWord?', {
       params: {
-        api_key: 'a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5',
+        api_key: DICTIONARY_APIKEY,
         hasDictionaryDef: false,
         minCorpusCount: 0,
         maxCorpusCount: -1,
