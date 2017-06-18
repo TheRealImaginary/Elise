@@ -1,5 +1,6 @@
 const axios = require('axios');
 const Game = require('./game');
+const HangmanCollector = require('../HangmanCollector');
 
 const DICTIONARY_APIKEY = process.env.DICTIONARY_APIKEY;
 
@@ -43,11 +44,19 @@ module.exports = class Hangman extends Game {
     }
     this.guess = this.word.replace(/[a-z]/gi, '_ ').split(' ');
     this.hangmanMessage = await message.say(this.guess.join(' '));
-
+    const filter = msg => msg.author.id === this.player.id && this.word.indexOf(msg.content) >= 0;
+    const hangmanCollector = new HangmanCollector(message.channel,
+      filter, { wrongGuesses: 3, maxMatches: this.word.length });
+    hangmanCollector.on('collect', console.log);
+    hangmanCollector.on('end', (collected, reason) => {
+      console.log(collected);
+      console.log(reason);
+      this.endGame();
+    });
   }
 
   async getWord(message) {
-    const { data } = await axios.get('http://developer.wordnik.com/v4/words.json/randomWord?', {
+    const { data } = await axios.get('http://api.wordnik.com:80/v4/words.json/randomWord?', {
       params: {
         api_key: DICTIONARY_APIKEY,
         hasDictionaryDef: false,
@@ -60,15 +69,18 @@ module.exports = class Hangman extends Game {
         excludePartOfSpeech: 'proper-noun',
       },
     }).catch(err => this.handleError(message, err));
+    console.log(data);
     if (!data || !data.word || data.word.length === 0) {
       message.say('I cannot seem to find anythig right now !');
     } else {
       this.word = data.word.replace(/-/g, ' ');
+      console.log(this.word);
     }
   }
 
   handleError(message, error) {
     this.client.emit('error', error);
+    console.log(error.response);
     message.say('An Error Occured Fetching Words !');
   }
 };
