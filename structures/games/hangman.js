@@ -1,4 +1,7 @@
+const axios = require('axios');
 const Game = require('./game');
+
+const DICTIONARY_APIKEY = process.env.DICTIONARY_APIKEY;
 
 /**
  * Represents a Hangman Game.
@@ -27,7 +30,38 @@ module.exports = class Hangman extends Game {
     this.play(message);
   }
 
-  play(message) {
+  async play(message) {
+    await this.getWord(message);
+    if (!this.word || this.word.length === 0) {
+      this.endGame();
+      return;
+    }
+    this.hangmanMessage = await message.say(this.word.replace(/[a-z]/gi, '_ '));
+  }
 
+  async getWord(message) {
+    const { data } = await axios.get('http://developer.wordnik.com/v4/words.json/randomWord?', {
+      params: {
+        api_key: 'a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5',
+        hasDictionaryDef: false,
+        minCorpusCount: 0,
+        maxCorpusCount: -1,
+        minDictionaryCount: 1,
+        maxDictionaryCount: -1,
+        minLength: 5,
+        maxLength: -1,
+        excludePartOfSpeech: 'proper-noun',
+      },
+    }).catch(err => this.handleError(message, err));
+    if (!data || !data.word || data.word.length === 0) {
+      message.say('I cannot seem to find anythig right now !');
+    } else {
+      this.word = data.word.replace(/-/g, ' ');
+    }
+  }
+
+  handleError(message, error) {
+    this.client.emit('error', error);
+    message.say('An Error Occured Fetching Words !');
   }
 };
