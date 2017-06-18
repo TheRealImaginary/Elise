@@ -14,7 +14,7 @@ module.exports = class Hangman extends Game {
     this.word = '';
     /**
      * Represents the Message to be updated with the answer.
-     * @type {Message}
+     * @type {?Message}
      */
     this.hangmanMessage = null;
     /**
@@ -22,6 +22,7 @@ module.exports = class Hangman extends Game {
      * @type {object}
      */
     this.hangmanOptions = options;
+
     client.games.set(this.player.id, this);
     this.play(message);
   }
