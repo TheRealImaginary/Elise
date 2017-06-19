@@ -55,8 +55,9 @@ module.exports = class Hangman extends Game {
     this.play(message);
   }
 
-  // TODO Make this look better :(
+  // TODO Make this look better :(.
   // Sometimes Message.content will hold old info. Investigate !
+  // indexOf works for subtrings which is a flaw.
   async play(message) {
     await this.getWord(message);
     if (!this.word || this.word.length === 0) {
@@ -65,24 +66,25 @@ module.exports = class Hangman extends Game {
     }
     this.guess = this.word.replace(/[a-z]/gi, '_ ').split(' ');
     this.hangmanMessage = await message
-      .say(`**__Wrong Guesses__**:\n\`\`\`${this.guess.join(' ')}\t\t\t\t\t\t Guesses Left: ${this.wrongGuesses}\`\`\``);
+      .say(`**__Wrong Guesses__**:\n\`\`\`${this.guess.join(' ')}\t\t\t\t\t Guesses Left: ${this.wrongGuesses}\`\`\``);
 
-    const filter = msg => msg.author.id === this.player.id
-      && (this.word === msg.content || this.word.indexOf(msg.content) >= 0);
+    const filter = msg =>
+      (this.word.toLowerCase() === msg.content.toLowerCase()
+        || this.word.toLowerCase().indexOf(msg.content.toLowerCase()) >= 0);
 
-    this.hangmanCollector = new HangmanCollector(message.channel,
+    this.hangmanCollector = new HangmanCollector(message,
       filter, { wrongGuesses: this.wrongGuesses, maxMatches: distinct(this.word) });
 
     // When a correct Guess is made by the player.
     this.hangmanCollector.on('collect', async (element) => {
       winston.info(`[HANGMAN]: "${this.word}" Collected: ${element}`);
-      if (element === this.word) {
+      if (element.toLowerCase() === this.word.toLowerCase()) {
         return;
       }
       this.guess.push(element);
       const regex = new RegExp(`[^${this.guess.join('')} ]`, 'gi');
       this.hangmanMessage = await this.hangmanMessage
-        .edit(`**__Wrong Guesses__**: ${[...this.hangmanCollector.wrong].join(', ')}\n\`\`\`${this.word.replace(regex, '_ ')}\t\t\t\t\t\t Guesses Left: ${this.wrongGuesses}\`\`\``);
+        .edit(`**__Wrong Guesses__**: ${[...this.hangmanCollector.wrong].join(', ')}\n\`\`\`${this.word.replace(regex, '_ ')}\t\t\t\t\t Guesses Left: ${this.wrongGuesses}\`\`\``);
     });
 
     // When a Wrong Guess is made.
@@ -91,7 +93,7 @@ module.exports = class Hangman extends Game {
       this.wrongGuesses = wrongGuesses;
       const regex = new RegExp(`[^${this.guess.join('')} ]`, 'gi');
       this.hangmanMessage = await this.hangmanMessage
-        .edit(`**__Wrong Guesses__**: ${[...this.hangmanCollector.wrong].join(', ')}\n\`\`\`${this.word.replace(regex, '_ ')}\t\t\t\t\t\t Guesses Left: ${wrongGuesses}\`\`\``);
+        .edit(`**__Wrong Guesses__**: ${[...this.hangmanCollector.wrong].join(', ')}\n\`\`\`${this.word.replace(regex, '_ ')}\t\t\t\t\t Guesses Left: ${wrongGuesses}\`\`\``);
     });
 
     // When Collected Ends.
@@ -132,11 +134,18 @@ module.exports = class Hangman extends Game {
   async award() {
     this.hangmanMessage = await this.hangmanMessage
       .edit(`**__Wrong Guesses__**: ${[...this.hangmanCollector.wrong].join(', ')}
-      \n\`\`\`${this.word}\t\t\t\t\t\t Guesses Left: ${this.wrongGuesses}\`\`\`\nCorrect !`);
+      \n\`\`\`${this.word}\t\t\t\t\t Guesses Left: ${this.wrongGuesses}\`\`\`\nCorrect !`);
   }
 
   handleError(message, error) {
     this.client.emit('error', error);
     message.say('An Error Occured Fetching Words !');
+  }
+
+  endGame() {
+    super.endGame();
+    if (this.hangmanCollector && !this.hangmanCollector.ended) {
+      this.hangmanCollector.stop('Error');
+    }
   }
 };

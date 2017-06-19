@@ -13,22 +13,28 @@ const { MessageCollector } = require('discord.js');
 module.exports = class HangmanCollector extends MessageCollector {
   /**
    * Creates an instance of HangmanCollector.
-   * @param {TextChannel|DMChannel|GroupDMChannel} channel - Channel on which
-   * Messages should be collected.
+   * @param {Message} message - Message which triggered Hangman Game.
    * @param {CollectorFilter} filter - Filter function returning True/False.
    * @param {HangmanCollectorOptions} [options={}] - The options to be applied to this collector.
    */
-  constructor(channel, filter, options = {}) {
-    super(channel, filter, options);
+  constructor(message, filter, options = {}) {
+    super(message.channel, filter, options);
 
     this.options.max = this.options.maxMatches;
     this.options.maxProcessed = 10000;
+
+    /**
+     * Represents the Player that triggered the Game.
+     * @type {User}
+     */
+    this.player = message.author;
 
     /**
      * Wrong Guesses made during the game
      * @type {Set<string>}
      */
     this.wrong = new Set();
+
     /**
      * Amount of acceptable Wrong Guesses.
      * @type {number}
@@ -40,7 +46,9 @@ module.exports = class HangmanCollector extends MessageCollector {
    * @emits HangmanCollector#wrong
    */
   handle(message) {
-    if (message.channel.id !== this.channel.id || message.author.bot) {
+    if (message.channel.id !== this.channel.id || message.author.bot
+      || message.author.id !== this.player.id
+      || message.content.startsWith(this.client.commandPrefix)) {
       return null;
     }
     this.received += 1;
