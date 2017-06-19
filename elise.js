@@ -1,5 +1,7 @@
 const dotenv = require('dotenv');
 
+dotenv.config();
+
 const { Constants } = require('discord.js');
 
 const Client = require('./structures/bot');
@@ -7,8 +9,6 @@ const Client = require('./structures/bot');
 const winston = require('winston');
 
 const Events = Object.values(Constants.Events);
-
-dotenv.config();
 
 const { PREFIX, TOKEN, OWNER, ENABLED_EVENTS } = process.env;
 
