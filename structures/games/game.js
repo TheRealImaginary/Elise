@@ -14,15 +14,15 @@ module.exports = class Game {
    * Plays the corresponding game.
    * @param {Message} - The Message that triggered the Game.
    */
-  play(message) {
+  async play(message) {
     throw new TypeError(`${this.constructor.name} is not implementing a 'play' method !`);
   }
 
   /**
    * Awards the Player after winning the game.
-   * @param {any} message 
+   * @param {any} message
    */
-  award(message) {
+  async award(message) {
     throw new TypeError(`${this.constructor.name} is not implementing an 'award' method !`);
   }
 
