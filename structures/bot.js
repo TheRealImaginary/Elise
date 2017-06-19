@@ -1,6 +1,7 @@
 const { Client } = require('discord.js-commando');
 const { RichEmbed } = require('discord.js');
-const dataBase = require('./database');
+const dataBase = require('./Database');
+const redis = require('./Redis');
 const MusicQueue = require('./music-queue');
 
 module.exports = class Bot extends Client {
@@ -12,6 +13,12 @@ module.exports = class Bot extends Client {
      */
     this.db = dataBase;
     this.db.connect();
+
+    /**
+     * Redis Server.
+     */
+    this.redis = redis;
+    this.redis.connect();
 
     /**
      * Music Queues for each guild.

@@ -2,21 +2,21 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const { Constants } = require('discord.js');
-
-const Client = require('./structures/bot');
-
 const winston = require('winston');
-
-const Events = Object.values(Constants.Events);
-
-const { PREFIX, TOKEN, OWNER, ENABLED_EVENTS } = process.env;
 
 winston.configure({
   transports: [
     new (winston.transports.Console)({ colorize: true }),
   ],
 });
+
+const { Constants } = require('discord.js');
+
+const Client = require('./structures/bot');
+
+const Events = Object.values(Constants.Events);
+
+const { PREFIX, TOKEN, OWNER, ENABLED_EVENTS } = process.env;
 
 const bot = new Client({
   commandPrefix: PREFIX,
