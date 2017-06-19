@@ -1,4 +1,5 @@
 const axios = require('axios');
+const winston = require('winston');
 const Game = require('./game');
 const HangmanCollector = require('../HangmanCollector');
 const { distinct } = require('../../util/randomizer');
@@ -33,10 +34,17 @@ module.exports = class Hangman extends Game {
      */
     this.hangmanOptions = options;
 
+    /**
+     * Represents the Maximum amount of Wrong Guesses that can be made by a player.
+     * @type {number}
+     */
+    this.wrongGuesses = 10;
+
     client.games.set(this.player.id, this);
     this.play(message);
   }
 
+  // TODO Make this look better :(
   async play(message) {
     await this.getWord(message);
     if (!this.word || this.word.length === 0) {
@@ -44,29 +52,43 @@ module.exports = class Hangman extends Game {
       return;
     }
     this.guess = this.word.replace(/[a-z]/gi, '_ ').split(' ');
-    this.hangmanMessage = await message.say(`\`\`\`${this.guess.join(' ')}\`\`\``);
+    this.hangmanMessage = await message
+      .say(`\`\`\`${this.guess.join(' ')}\t\t\t\t\t\t\t Guesses Left: ${this.wrongGuesses}\`\`\``);
+
     const filter = msg => msg.author.id === this.player.id
       && (this.word === msg.content || this.word.indexOf(msg.content) >= 0);
+
     const hangmanCollector = new HangmanCollector(message.channel,
-      filter, { wrongGuesses: 3, maxMatches: distinct(this.word) });
+      filter, { wrongGuesses: this.wrongGuesses, maxMatches: distinct(this.word) });
+
+    // When a correct Guess is made by the player.
     hangmanCollector.on('collect', async (element) => {
-      console.log(element);
+      winston.info(`[HANGMAN]: "${this.word}" Collected: ${element}`);
       if (element === this.word) {
-        this.award(message);
         return;
       }
       this.guess.push(element);
       const regex = new RegExp(`[^${this.guess.join('')} ]`, 'gi');
       this.hangmanMessage = await this.hangmanMessage
-        .edit(`\`\`\`${this.word.replace(regex, '_ ')}\`\`\``);
+        .edit(`\`\`\`${this.word.replace(regex, '_ ')}\t\t\t\t\t\t\t Guesses Left: ${this.wrongGuesses}\`\`\``);
     });
-    hangmanCollector.on('end', (collected, reason) => {
-      console.log(collected);
-      console.log(reason);
+
+    // When a Wrong Guess is made.
+    hangmanCollector.on('wrong', async (wrongGuesses) => {
+      winston.info(`[HANGMAN]: "${this.word}" Guesses Left: ${wrongGuesses}`);
+      this.wrongGuesses = wrongGuesses;
+      const regex = new RegExp(`[^${this.guess.join('')} ]`, 'gi');
+      this.hangmanMessage = await this.hangmanMessage
+        .edit(`\`\`\`${this.word.replace(regex, '_ ')}\t\t\t\t\t\t\t Guesses Left: ${wrongGuesses}\`\`\``);
+    });
+
+    // When Collected Ends.
+    hangmanCollector.on('end', async (collected, reason) => {
+      winston.info(`[HANGMAN]: "${this.word}" Ended with reason "${reason}"`, collected);
       if (reason === 'limit') {
-        this.award(message);
+        this.award();
       } else {
-        message.say(`Incorrect, The Word is ${this.word}`);
+        this.hangmanMessage = await this.hangmanMessage.edit(`${this.hangmanMessage.content}\nIncorrect, The Word is "${this.word}"`);
       }
       this.endGame();
     });
@@ -86,22 +108,22 @@ module.exports = class Hangman extends Game {
         excludePartOfSpeech: 'proper-noun',
       },
     }).catch(err => this.handleError(message, err));
-    console.log(data);
+    winston.info('[HANGMAN]: Random word data', data);
     if (!data || !data.word || data.word.length === 0) {
       message.say('I cannot seem to find anythig right now !');
     } else {
       this.word = data.word.replace(/-/g, ' ');
-      console.log(this.word);
+      winston.info(`[HANGMAN]: Word is "${this.word}"`);
     }
   }
 
-  award(message) {
-    message.say('Correct !');
+  async award() {
+    this.hangmanMessage = await this.hangmanMessage
+      .edit(`\`\`\`${this.word}\t\t\t\t\t\t\t Guesses Left: ${this.wrongGuesses}\`\`\`\nCorrect !`);
   }
 
   handleError(message, error) {
     this.client.emit('error', error);
-    console.log(error.response);
     message.say('An Error Occured Fetching Words !');
   }
 };

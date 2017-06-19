@@ -22,7 +22,13 @@ module.exports = class HangmanCollector extends MessageCollector {
     super(channel, filter, options);
 
     this.options.max = this.options.maxMatches;
+    this.options.maxProcessed = 10000;
 
+    /**
+     * Wrong Guesses made during the game
+     * @type {Set<string>}
+     */
+    this.wrong = new Set();
     /**
      * Amount of acceptable Wrong Guesses.
      * @type {number}
@@ -30,13 +36,18 @@ module.exports = class HangmanCollector extends MessageCollector {
     this.wrongGuesses = options.wrongGuesses || 10;
   }
 
+  /**
+   * @emits HangmanCollector#wrong
+   */
   handle(message) {
     if (message.channel.id !== this.channel.id) {
       return null;
     }
     this.received += 1;
-    if (!this.filter(message)) {
+    if (!this.filter(message) && !this.wrong.has(message.content)) {
       this.wrongGuesses -= 1;
+      this.wrong.add(message.content);
+      this.emit('wrong', this.wrongGuesses);
       const check = this.wrongCheck();
       if (check) {
         this.stop(check);
@@ -56,5 +67,13 @@ module.exports = class HangmanCollector extends MessageCollector {
    */
   wrongCheck() {
     return this.wrongGuesses === 0 ? 'wrong' : null;
+  }
+
+  postCheck(message) {
+    const post = super.postCheck();
+    if (post) {
+      return post;
+    }
+    return message.content.length >= this.options.maxMatches ? 'limit' : null;
   }
 };

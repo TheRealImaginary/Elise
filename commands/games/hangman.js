@@ -9,7 +9,7 @@ module.exports = class HangmanCommand extends Command {
       autoAliases: false,
       group: 'games',
       memberName: 'hangman',
-      description: ``,
+      description: 'Starts a Hangman Game',
     });
   }
 
