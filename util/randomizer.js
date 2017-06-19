@@ -50,9 +50,19 @@ function distinct(list) {
   return list.length;
 }
 
+/**
+ * Capitalize the first letter in the String and lowers the rest.
+ * @param {string} word - The Word to capitalize.
+ * @returns {string} The Capitalized word.
+ */
+function capitalize(word) {
+  return `${word[0].toUpperCase()}${word.substring(1).toLowerCase()}`;
+}
+
 module.exports = {
   randomizer,
   getRandom,
   shuffle,
   distinct,
+  capitalize,
 };

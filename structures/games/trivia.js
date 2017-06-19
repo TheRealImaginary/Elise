@@ -1,7 +1,7 @@
 const axios = require('axios');
 const winston = require('winston');
 const { RichEmbed } = require('discord.js');
-const { shuffle } = require('./../../util/randomizer');
+const { shuffle, capitalize } = require('./../../util/randomizer');
 const Game = require('./game');
 
 const triviaTime = 12;
@@ -20,14 +20,27 @@ module.exports = class Trivia extends Game {
    */
   constructor(client, message, options) {
     super(client, message.author);
+    /**
+     * Trivia Data
+     * @type {object}
+     */
     this.trivia = null;
+    /**
+     * Trivia Options
+     * @type {object}
+     */
     this.triviaOptions = options;
+    /**
+     * Cached Answers after shuffling.
+     * @type {Array<string>}
+     */
+    this._answers = null;
     client.games.set(this.player.id, this);
     this.play(message);
   }
 
   async play(message) {
-    this.trivia = await this.getTrivia(message, this.triviaOptions);
+    this.trivia = await this.getTrivia(message);
     this.trivia = await this.trivia;
     if (!this.trivia) {
       this.endGame();
@@ -63,7 +76,7 @@ module.exports = class Trivia extends Game {
     const embed = new RichEmbed();
     const answers = this.answers;
     embed.setColor('RANDOM');
-    embed.setAuthor(`Info: ${category} | ${type} | ${difficulty}`);
+    embed.setAuthor(`Info: ${category} | ${capitalize(type)} | ${capitalize(difficulty)}`);
     embed.setTitle(`You have **${triviaTime} seconds** to answer !`);
     embed.addField('➤Question', `⬧${question}`);
     embed.addField('➤Answers', answers.join('\n'));
@@ -73,14 +86,19 @@ module.exports = class Trivia extends Game {
   }
 
   get answers() {
+    if (this._answers) {
+      return this._answers;
+    }
     const { correct_answer: correctAnswer, incorrect_answers: incorrectAnswers } = this.trivia;
     const answers = [].concat(incorrectAnswers);
     answers.push(correctAnswer);
     shuffle(answers);
-    return answers.map((answer, index) => `${index + 1}. ${answer}`);
+    this._answers = answers.map((answer, index) => `${index + 1}. ${answer}`);
+    return this._answers;
   }
 
-  async getTrivia(message, { category, difficulty, type }) {
+  async getTrivia(message) {
+    const { category, difficulty, type } = this.triviaOptions;
     const { data } = await axios.get('https://opentdb.com/api.php?', {
       params: {
         amount: 1,
@@ -90,6 +108,7 @@ module.exports = class Trivia extends Game {
       },
     }).catch(err => this.handleError(message, err));
     if (!data.results || data.results.length === 0) {
+      winston.info('[TRIVIA]: No Questions Found', this.triviaOptions);
       message.say('No Questions in this Category !');
       return null;
     }
