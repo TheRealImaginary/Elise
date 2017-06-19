@@ -37,8 +37,24 @@ function shuffle(list) {
   }
 }
 
+/**
+ * Returns the distinct number of elements in an Array or String.
+ * @param {string|Array<*>} list
+ * @return {number} The number of distinct elements.
+ */
+function distinct(list) {
+  if (typeof list === 'string') {
+    list = list.split('');
+  }
+  console.log(typeof list);
+  list = list.filter((el, index) => (el !== ' ' && list.indexOf(el) === index));
+  console.log(list);
+  return list.length;
+}
+
 module.exports = {
   randomizer,
   getRandom,
   shuffle,
+  distinct,
 };

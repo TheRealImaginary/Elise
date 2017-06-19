@@ -1,6 +1,7 @@
 const axios = require('axios');
 const Game = require('./game');
 const HangmanCollector = require('../HangmanCollector');
+const { distinct } = require('../../util/randomizer');
 
 const DICTIONARY_APIKEY = process.env.DICTIONARY_APIKEY;
 
@@ -43,20 +44,36 @@ module.exports = class Hangman extends Game {
       return;
     }
     this.guess = this.word.replace(/[a-z]/gi, '_ ').split(' ');
-    this.hangmanMessage = await message.say(this.guess.join(' '));
-    const filter = msg => msg.author.id === this.player.id && this.word.indexOf(msg.content) >= 0;
+    this.hangmanMessage = await message.say(`\`\`\`${this.guess.join(' ')}\`\`\``);
+    const filter = msg => msg.author.id === this.player.id
+      && (this.word === msg.content || this.word.indexOf(msg.content) >= 0);
     const hangmanCollector = new HangmanCollector(message.channel,
-      filter, { wrongGuesses: 3, maxMatches: this.word.length });
-    hangmanCollector.on('collect', console.log);
+      filter, { wrongGuesses: 3, maxMatches: distinct(this.word) });
+    hangmanCollector.on('collect', async (element) => {
+      console.log(element);
+      if (element === this.word) {
+        this.award(message);
+        return;
+      }
+      this.guess.push(element);
+      const regex = new RegExp(`[^${this.guess.join('')} ]`, 'gi');
+      this.hangmanMessage = await this.hangmanMessage
+        .edit(`\`\`\`${this.word.replace(regex, '_ ')}\`\`\``);
+    });
     hangmanCollector.on('end', (collected, reason) => {
       console.log(collected);
       console.log(reason);
+      if (reason === 'limit') {
+        this.award(message);
+      } else {
+        message.say(`Incorrect, The Word is ${this.word}`);
+      }
       this.endGame();
     });
   }
 
   async getWord(message) {
-    const { data } = await axios.get('http://api.wordnik.com:80/v4/words.json/randomWord?', {
+    const { data } = await axios.get('http://api.wordnik.com/v4/words.json/randomWord?', {
       params: {
         api_key: DICTIONARY_APIKEY,
         hasDictionaryDef: false,
@@ -76,6 +93,10 @@ module.exports = class Hangman extends Game {
       this.word = data.word.replace(/-/g, ' ');
       console.log(this.word);
     }
+  }
+
+  award(message) {
+    message.say('Correct !');
   }
 
   handleError(message, error) {
