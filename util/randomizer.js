@@ -46,9 +46,7 @@ function distinct(list) {
   if (typeof list === 'string') {
     list = list.split('');
   }
-  console.log(typeof list);
   list = list.filter((el, index) => (el !== ' ' && list.indexOf(el) === index));
-  console.log(list);
   return list.length;
 }
 

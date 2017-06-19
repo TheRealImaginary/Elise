@@ -1,4 +1,5 @@
 const axios = require('axios');
+const winston = require('winston');
 const { RichEmbed } = require('discord.js');
 const { shuffle } = require('./../../util/randomizer');
 const Game = require('./game');
@@ -28,22 +29,13 @@ module.exports = class Trivia extends Game {
   async play(message) {
     this.trivia = await this.getTrivia(message, this.triviaOptions);
     this.trivia = await this.trivia;
-    console.log(this.trivia);
     if (!this.trivia) {
       this.endGame();
       return;
     }
-    const { category, type, difficulty, question, correct_answer: correctAnswer } = this.trivia;
     const answers = this.answers;
-    const embed = new RichEmbed();
-    embed.setColor('RANDOM');
-    embed.setAuthor(`Info: ${category} | ${type} | ${difficulty}`);
-    embed.setTitle(`You have **${triviaTime} seconds** to answer !`);
-    embed.addField('➤Question', `⬧${question}`);
-    embed.addField('➤Answers', answers.join('\n'));
-    embed.setTimestamp(new Date());
-    embed.setFooter(this.client.user.username, this.client.user.displayAvatarURL);
-    await message.embed(embed);
+    const correctAnswer = this.trivia.correct_answer;
+    await message.embed(this.triviaEmbed);
     try {
       const filter = msg => msg.author.id === this.player.id
         && numbers.includes(msg.content.trim());
@@ -62,8 +54,27 @@ module.exports = class Trivia extends Game {
     this.endGame();
   }
 
+  /**
+   * Represents the Trivia Question/Answers as an Embed Message.
+   * @readonly
+   */
+  get triviaEmbed() {
+    const { category, type, difficulty, question } = this.trivia;
+    const embed = new RichEmbed();
+    const answers = this.answers;
+    embed.setColor('RANDOM');
+    embed.setAuthor(`Info: ${category} | ${type} | ${difficulty}`);
+    embed.setTitle(`You have **${triviaTime} seconds** to answer !`);
+    embed.addField('➤Question', `⬧${question}`);
+    embed.addField('➤Answers', answers.join('\n'));
+    embed.setTimestamp(new Date());
+    embed.setFooter(this.client.user.username, this.client.user.displayAvatarURL);
+    return embed;
+  }
+
   get answers() {
-    const { correct_answer: correctAnswer, incorrect_answers: answers } = this.trivia;
+    const { correct_answer: correctAnswer, incorrect_answers: incorrectAnswers } = this.trivia;
+    const answers = [].concat(incorrectAnswers);
     answers.push(correctAnswer);
     shuffle(answers);
     return answers.map((answer, index) => `${index + 1}. ${answer}`);
@@ -82,6 +93,7 @@ module.exports = class Trivia extends Game {
       message.say('No Questions in this Category !');
       return null;
     }
+    winston.info('[TRIVIA]: Trivia data ', data.results[0]);
     return data.results[0];
   }
 
