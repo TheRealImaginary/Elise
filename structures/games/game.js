@@ -9,7 +9,6 @@ module.exports = class Game {
     this.client = client;
     this.player = player;
     this.client.games.set(this.player.id, this);
-    console.log(this);
   }
 
   /**

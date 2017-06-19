@@ -44,7 +44,7 @@ function shuffle(list) {
  */
 function distinct(list) {
   if (typeof list === 'string') {
-    list = list.split('');
+    list = list.toLowerCase().split('');
   }
   list = list.filter((el, index) => (el !== ' ' && list.indexOf(el) === index));
   return list.length;

@@ -11,6 +11,12 @@ const DICTIONARY_APIKEY = process.env.DICTIONARY_APIKEY;
  * @extends Game
  */
 module.exports = class Hangman extends Game {
+  /**
+   * Creates an instance of Hangman.
+   * @param {Bot} client - Represents the Bot.
+   * @param {Message} message - Represents the Message that triggered the Hangman Game.
+   * @param {object} options - Options for the Hangman Game.
+   */
   constructor(client, message, options) {
     super(client, message.author);
     /**
@@ -40,10 +46,17 @@ module.exports = class Hangman extends Game {
      */
     this.wrongGuesses = 10;
 
+    /**
+     * Represents the Collector Collecting Message for the Game.
+     * @type {HangmanCollector}
+     */
+    this.hangmanCollector = null;
+
     this.play(message);
   }
 
   // TODO Make this look better :(
+  // Sometimes Message.content will hold old info. Investigate !
   async play(message) {
     await this.getWord(message);
     if (!this.word || this.word.length === 0) {
@@ -52,16 +65,16 @@ module.exports = class Hangman extends Game {
     }
     this.guess = this.word.replace(/[a-z]/gi, '_ ').split(' ');
     this.hangmanMessage = await message
-      .say(`\`\`\`${this.guess.join(' ')}\t\t\t\t\t\t\t Guesses Left: ${this.wrongGuesses}\`\`\``);
+      .say(`**__Wrong Guesses__**:\n\`\`\`${this.guess.join(' ')}\t\t\t\t\t\t Guesses Left: ${this.wrongGuesses}\`\`\``);
 
     const filter = msg => msg.author.id === this.player.id
       && (this.word === msg.content || this.word.indexOf(msg.content) >= 0);
 
-    const hangmanCollector = new HangmanCollector(message.channel,
+    this.hangmanCollector = new HangmanCollector(message.channel,
       filter, { wrongGuesses: this.wrongGuesses, maxMatches: distinct(this.word) });
 
     // When a correct Guess is made by the player.
-    hangmanCollector.on('collect', async (element) => {
+    this.hangmanCollector.on('collect', async (element) => {
       winston.info(`[HANGMAN]: "${this.word}" Collected: ${element}`);
       if (element === this.word) {
         return;
@@ -69,20 +82,20 @@ module.exports = class Hangman extends Game {
       this.guess.push(element);
       const regex = new RegExp(`[^${this.guess.join('')} ]`, 'gi');
       this.hangmanMessage = await this.hangmanMessage
-        .edit(`\`\`\`${this.word.replace(regex, '_ ')}\t\t\t\t\t\t\t Guesses Left: ${this.wrongGuesses}\`\`\``);
+        .edit(`**__Wrong Guesses__**: ${[...this.hangmanCollector.wrong].join(', ')}\n\`\`\`${this.word.replace(regex, '_ ')}\t\t\t\t\t\t Guesses Left: ${this.wrongGuesses}\`\`\``);
     });
 
     // When a Wrong Guess is made.
-    hangmanCollector.on('wrong', async (wrongGuesses) => {
-      winston.info(`[HANGMAN]: "${this.word}" Guesses Left: ${wrongGuesses}`);
+    this.hangmanCollector.on('wrong', async (wrongGuesses) => {
+      winston.info(`[HANGMAN]: Wrong Guess on word "${this.word}" ! Guesses Left: ${wrongGuesses}`);
       this.wrongGuesses = wrongGuesses;
       const regex = new RegExp(`[^${this.guess.join('')} ]`, 'gi');
       this.hangmanMessage = await this.hangmanMessage
-        .edit(`\`\`\`${this.word.replace(regex, '_ ')}\t\t\t\t\t\t\t Guesses Left: ${wrongGuesses}\`\`\``);
+        .edit(`**__Wrong Guesses__**: ${[...this.hangmanCollector.wrong].join(', ')}\n\`\`\`${this.word.replace(regex, '_ ')}\t\t\t\t\t\t Guesses Left: ${wrongGuesses}\`\`\``);
     });
 
     // When Collected Ends.
-    hangmanCollector.on('end', async (collected, reason) => {
+    this.hangmanCollector.on('end', async (collected, reason) => {
       winston.info(`[HANGMAN]: "${this.word}" Ended with reason "${reason}"`, collected);
       if (reason === 'limit') {
         this.award();
@@ -118,7 +131,8 @@ module.exports = class Hangman extends Game {
 
   async award() {
     this.hangmanMessage = await this.hangmanMessage
-      .edit(`\`\`\`${this.word}\t\t\t\t\t\t\t Guesses Left: ${this.wrongGuesses}\`\`\`\nCorrect !`);
+      .edit(`**__Wrong Guesses__**: ${[...this.hangmanCollector.wrong].join(', ')}
+      \n\`\`\`${this.word}\t\t\t\t\t\t Guesses Left: ${this.wrongGuesses}\`\`\`\nCorrect !`);
   }
 
   handleError(message, error) {

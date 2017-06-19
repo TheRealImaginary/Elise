@@ -40,18 +40,20 @@ module.exports = class HangmanCollector extends MessageCollector {
    * @emits HangmanCollector#wrong
    */
   handle(message) {
-    if (message.channel.id !== this.channel.id) {
+    if (message.channel.id !== this.channel.id || message.author.bot) {
       return null;
     }
     this.received += 1;
     if (!this.filter(message) && !this.wrong.has(message.content)) {
-      this.wrongGuesses -= 1;
-      this.wrong.add(message.content);
-      this.emit('wrong', this.wrongGuesses);
-      const check = this.wrongCheck();
-      if (check) {
-        this.stop(check);
-        return null;
+      if (!this.ended) {
+        this.wrongGuesses -= 1;
+        this.wrong.add(message.content);
+        this.emit('wrong', this.wrongGuesses);
+        const check = this.wrongCheck();
+        if (check) {
+          this.stop(check);
+          return null;
+        }
       }
     }
     return {
