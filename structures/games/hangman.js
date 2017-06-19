@@ -40,7 +40,6 @@ module.exports = class Hangman extends Game {
      */
     this.wrongGuesses = 10;
 
-    client.games.set(this.player.id, this);
     this.play(message);
   }
 

@@ -35,7 +35,7 @@ module.exports = class Trivia extends Game {
      * @type {Array<string>}
      */
     this._answers = null;
-    client.games.set(this.player.id, this);
+
     this.play(message);
   }
 

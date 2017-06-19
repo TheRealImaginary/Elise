@@ -8,6 +8,8 @@ module.exports = class Game {
   constructor(client, player) {
     this.client = client;
     this.player = player;
+    this.client.games.set(this.player.id, this);
+    console.log(this);
   }
 
   /**
