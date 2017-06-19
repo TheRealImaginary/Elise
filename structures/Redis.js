@@ -18,6 +18,7 @@ module.exports = class Redis {
   static connect() {
     client.on('error', err => winston.error('[REDIS]: Error connecting to Redis', err));
     client.on('reconnecting', meta => winston.warn('[REDIS]: Reconnecting to Redis', meta));
-    client.on('ready', () => '[REDIS]: Connect to Redis Server');
+    client.on('end', () => winston.warn('[REDIS]: Connection Terminated'));
+    client.on('ready', () => '[REDIS]: Connected to Redis Server');
   }
 };

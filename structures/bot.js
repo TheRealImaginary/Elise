@@ -2,6 +2,7 @@ const { Client } = require('discord.js-commando');
 const { RichEmbed } = require('discord.js');
 const dataBase = require('./Database');
 const redis = require('./Redis');
+const ScoreBoard = require('./games/Scoreboard');
 const MusicQueue = require('./music-queue');
 
 module.exports = class Bot extends Client {
@@ -31,14 +32,25 @@ module.exports = class Bot extends Client {
      * @type {Map<string,Game>}
      */
     this.games = new Map();
+
     /**
      * How Many times a command has been executed.
      * @type {number}
      */
     this.commandsExecuted = 0;
 
+    /**
+     * Scoreboard for Awarding and Displaying Scores.
+     * @type {Scoreboard}
+     */
+    this.scoreboard = new ScoreBoard(this);
+
     this.on('commandRun', () => {
       this.commandsExecuted += 1;
+    });
+
+    this.on('ready', () => {
+      this.scoreboard.award(this.owners[0], 300);
     });
   }
   /**
