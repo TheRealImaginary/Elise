@@ -11,7 +11,7 @@ module.exports = class HangmanCommand extends Command {
       memberName: 'hangman',
       description: 'Starts a Hangman Game',
       throttling: {
-        usage: 3,
+        usages: 3,
         duration: 10,
       },
     });

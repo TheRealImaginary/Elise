@@ -8,7 +8,7 @@ module.exports = class TriviaCategories extends Command {
       aliases: ['tcat'],
       autoAliases: true,
       group: 'games',
-      memberName: 'trivia-info',
+      memberName: 'trivia-categories',
       description: `Displays all Trivia Categories. You can choose them 
       by their Index or Full Name when starting a Trivia Game.`,
     });
@@ -16,6 +16,8 @@ module.exports = class TriviaCategories extends Command {
 
   async run(message) {
     await message.direct(triviaCategories.join('\n'));
-    message.reply('Sent you a DM with information.');
+    if (message.guild) {
+      message.reply('Sent you a DM with information.');
+    }
   }
 };
