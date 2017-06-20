@@ -116,8 +116,9 @@ module.exports = class Trivia extends Game {
     return data.results[0];
   }
 
-  award(message) {
-    message.say(`Correct ! ${this.trivia.correct_answer} is the correct answer !`);
+  async award(message) {
+    await this.client.scoreboard.award(this.player.id, 100);
+    message.say(`Correct ! ${this.trivia.correct_answer} is the correct answer ! You gained 100 Kittens !`);
   }
 
   parse(property) {

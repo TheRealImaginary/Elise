@@ -48,10 +48,6 @@ module.exports = class Bot extends Client {
     this.on('commandRun', () => {
       this.commandsExecuted += 1;
     });
-
-    this.on('ready', () => {
-      this.scoreboard.award(this.owners[0], 300);
-    });
   }
   /**
    * Check whether the Member is in the channel where the music is playing or no.

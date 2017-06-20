@@ -21,9 +21,9 @@ module.exports = class Hangman extends Game {
     super(client, message.author);
     /**
      * Represents the word to be guessed.
-     * @type {string}
+     * @type {?string}
      */
-    this.word = '';
+    this.word = null;
     /**
      * Represents the Guessed word so far.
      * @type {Array<Character>}
@@ -132,9 +132,10 @@ module.exports = class Hangman extends Game {
   }
 
   async award() {
+    await this.client.scoreboard.award(this.player.id, 200);
     this.hangmanMessage = await this.hangmanMessage
       .edit(`**__Wrong Guesses__**: ${[...this.hangmanCollector.wrong].join(', ')}
-      \n\`\`\`${this.word}\t\t\t\t\t Guesses Left: ${this.wrongGuesses}\`\`\`\nCorrect !`);
+      \n\`\`\`${this.word}\t\t\t\t\t Guesses Left: ${this.wrongGuesses}\`\`\`\nCorrect ! You gained 200 Kittens !`);
   }
 
   handleError(message, error) {
