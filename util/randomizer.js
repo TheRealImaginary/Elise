@@ -11,7 +11,7 @@ function getRandom(low, high) {
 /**
  * Returns a random element from an array.
  * @param {Array<*>|string} list - List from which an element must be chosen.
- * @returns {?any} The Random Element.
+ * @returns {?*} The Random Element.
  */
 function randomizer(list) {
   if (typeof list === 'string') {
@@ -23,7 +23,46 @@ function randomizer(list) {
   return list[getRandom(0, list.length)];
 }
 
+/**
+ * Shuffles an array.
+ * @param {Array<*>} list - The Array to shuffle.
+ */
+function shuffle(list) {
+  const n = list.length;
+  for (let i = 0; i < n; i += 1) {
+    const newIndex = i + (Math.floor(Math.random() * (n - i)));
+    const temp = list[newIndex];
+    list[newIndex] = list[i];
+    list[i] = temp;
+  }
+}
+
+/**
+ * Returns the distinct number of elements in an Array or String.
+ * @param {string|Array<*>} list
+ * @return {number} The number of distinct elements.
+ */
+function distinct(list) {
+  if (typeof list === 'string') {
+    list = list.toLowerCase().split('');
+  }
+  list = list.filter((el, index) => (el !== ' ' && list.indexOf(el) === index));
+  return list.length;
+}
+
+/**
+ * Capitalize the first letter in the String and lowers the rest.
+ * @param {string} word - The Word to capitalize.
+ * @returns {string} The Capitalized word.
+ */
+function capitalize(word) {
+  return `${word[0].toUpperCase()}${word.substring(1).toLowerCase()}`;
+}
+
 module.exports = {
   randomizer,
   getRandom,
+  shuffle,
+  distinct,
+  capitalize,
 };

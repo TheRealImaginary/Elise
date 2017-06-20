@@ -1,25 +1,22 @@
-let dotenv;
-/* eslint-disable global-require*/
-if (!process.env.NODE_ENV) {
-  dotenv = require('dotenv');
-  dotenv.config();
-}
+const dotenv = require('dotenv');
 
-const { Constants } = require('discord.js');
-
-const Client = require('./structures/bot');
+dotenv.config();
 
 const winston = require('winston');
-
-const Events = Object.values(Constants.Events);
-
-const { PREFIX, TOKEN, OWNER, ENABLED_EVENTS } = process.env;
 
 winston.configure({
   transports: [
     new (winston.transports.Console)({ colorize: true }),
   ],
 });
+
+const { Constants } = require('discord.js');
+
+const Client = require('./structures/bot');
+
+const Events = Object.values(Constants.Events);
+
+const { PREFIX, TOKEN, OWNER, ENABLED_EVENTS } = process.env;
 
 const bot = new Client({
   commandPrefix: PREFIX,
@@ -35,12 +32,13 @@ bot.on('commandError', (command, err, { content }, args) => {
   winston.error(`Error executing command ${command.name} on inputs ${args} with content ${content}`);
 });
 
-bot.on('error', err => winston.error(err));
+bot.on('error', err => winston.error(err.message));
 
 bot.registry
   .registerDefaults()
   .registerGroups([
     ['fun', 'Fun'],
+    ['games', 'Games'],
     ['info', 'Info'],
     ['memes', 'Memes'],
     ['mod', 'Mod'],

@@ -10,8 +10,7 @@ module.exports = class Database {
   static connect() {
     mongoose.connect(DB_URL)
       .then(() => winston.info('[MONGODB]: Connected to the Database !'))
-      .catch((err) => {
-        winston.error(`[MONGODB]: An Error Occured connecting to the Database \n${err}!`);
-      });
+      .catch(err =>
+        winston.error('[MONGODB]: An Error Occured connecting to the Database !', err));
   }
 };

@@ -12,12 +12,12 @@ module.exports = class Leave extends Command {
     });
   }
 
-  hasPermissions(user) {
-    return this.client.isOwner(user);
+  hasPermissions(member) {
+    return this.client.isOwner(member) || member.permissions.has('MOVE_MEMBERS');
   }
 
   run(message) {
-    if (this.hasPermissions(message.author)) {
+    if (this.hasPermissions(message.member)) {
       if (!this.client.getMusicQueue(message.guild.id).disconnect()) {
         message.say('We are not playing any music !');
       }

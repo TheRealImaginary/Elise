@@ -1,6 +1,8 @@
 const { Client } = require('discord.js-commando');
 const { RichEmbed } = require('discord.js');
-const dataBase = require('./database');
+const dataBase = require('./Database');
+const redis = require('./Redis');
+const ScoreBoard = require('./games/Scoreboard');
 const MusicQueue = require('./music-queue');
 
 module.exports = class Bot extends Client {
@@ -14,16 +16,34 @@ module.exports = class Bot extends Client {
     this.db.connect();
 
     /**
+     * Redis Server.
+     */
+    this.redis = redis;
+    this.redis.connect();
+
+    /**
      * Music Queues for each guild.
      * @type {Map<string, MusicQueue>}
      */
     this.queues = new Map();
 
     /**
+     * Games for each player.
+     * @type {Map<string,Game>}
+     */
+    this.games = new Map();
+
+    /**
      * How Many times a command has been executed.
      * @type {number}
      */
     this.commandsExecuted = 0;
+
+    /**
+     * Scoreboard for Awarding and Displaying Scores.
+     * @type {Scoreboard}
+     */
+    this.scoreboard = new ScoreBoard(this);
 
     this.on('commandRun', () => {
       this.commandsExecuted += 1;
