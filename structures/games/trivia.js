@@ -37,6 +37,12 @@ module.exports = class Trivia extends Game {
      */
     this._answers = null;
 
+    /**
+     * Message that Triggered the Game.
+     * @type {Message}
+     */
+    this.message = message;
+
     this.play(message);
   }
 
@@ -77,7 +83,8 @@ module.exports = class Trivia extends Game {
     const embed = new RichEmbed();
     const answers = this.answers;
     embed.setColor('RANDOM');
-    embed.setAuthor(`Info: ${category} | ${capitalize(type)} | ${capitalize(difficulty)}`);
+    embed.setAuthor(`Info: ${category} | ${capitalize(type)} | ${capitalize(difficulty)}`
+      , this.message.author.displayAvatarURL());
     embed.setTitle(`You have **${triviaTime} seconds** to answer !`);
     embed.addField('➤Question', `⬧${he.decode(question)}`);
     embed.addField('➤Answers', answers.join('\n'));
@@ -94,7 +101,7 @@ module.exports = class Trivia extends Game {
     const answers = [].concat(incorrectAnswers);
     answers.push(correctAnswer);
     shuffle(answers);
-    this._answers = answers.map((answer, index) => `${index + 1}. ${answer}`);
+    this._answers = answers.map((answer, index) => `${index + 1}. ${he.decode(answer)}`);
     return this._answers;
   }
 
