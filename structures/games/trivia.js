@@ -1,5 +1,6 @@
 const axios = require('axios');
 const winston = require('winston');
+const he = require('he');
 const { RichEmbed } = require('discord.js');
 const { shuffle, capitalize } = require('./../../util/randomizer');
 const Game = require('./game');
@@ -78,7 +79,7 @@ module.exports = class Trivia extends Game {
     embed.setColor('RANDOM');
     embed.setAuthor(`Info: ${category} | ${capitalize(type)} | ${capitalize(difficulty)}`);
     embed.setTitle(`You have **${triviaTime} seconds** to answer !`);
-    embed.addField('➤Question', `⬧${question}`);
+    embed.addField('➤Question', `⬧${he.decode(question)}`);
     embed.addField('➤Answers', answers.join('\n'));
     embed.setTimestamp(new Date());
     embed.setFooter(this.client.user.username, this.client.user.displayAvatarURL);
@@ -107,7 +108,7 @@ module.exports = class Trivia extends Game {
         type: this.parse(type),
       },
     }).catch(err => this.handleError(message, err));
-    if (!data.results || data.results.length === 0) {
+    if (!data || !data.results || data.results.length === 0) {
       winston.info('[TRIVIA]: No Questions Found', this.triviaOptions);
       message.say('No Questions in this Category !');
       return null;

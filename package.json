@@ -22,6 +22,7 @@
     "discord.js": "github:hydrabolt/discord.js",
     "discord.js-commando": "git+https://github.com/Gawdl3y/discord.js-commando.git",
     "dotenv": "^4.0.0",
+    "he": "^1.1.1",
     "html-to-text": "^3.2.0",
     "moment": "^2.18.1",
     "mongoose": "^4.9.9",
