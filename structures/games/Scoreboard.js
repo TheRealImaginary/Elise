@@ -40,6 +40,15 @@ module.exports = class Scoreboard {
   }
 
   /**
+   * Fetches the Currect Points for a User.
+   * @param {string} userID - User's ID.
+   * @returns {Promise<number>} Promise that resolves with the Points.
+   */
+  async getPoints(userID) {
+    return (await this.redisClient.hgetAsync('scoreboard', userID)) || 0;
+  }
+
+  /**
    * Fetches the Current Scoreboard.
    * @returns {Array<object>} An Array of UserIDs and Points.
    */
