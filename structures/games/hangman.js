@@ -1,5 +1,6 @@
 const axios = require('axios');
 const winston = require('winston');
+const { RichEmbed } = require('discord.js');
 const Game = require('./game');
 const HangmanCollector = require('../HangmanCollector');
 const { distinct } = require('../../util/util');
@@ -67,20 +68,20 @@ module.exports = class Hangman extends Game {
 
   // TODO Make this look better :(.
   // Sometimes Message.content will hold old info. Investigate !
-  // indexOf works for subtrings which is a flaw.
+  // This was an example word >> œdema. Make sure this doesnt get fetched.
   async play(message) {
     await this.getWord(message);
     if (!this.word || this.word.length === 0) {
       this.endGame();
       return;
     }
-    this.guess = this.word.replace(/[a-z]/gi, '_ ').split(' ');
-    this.hangmanMessage = await message
-      .say(`**__Wrong Guesses__**:\n\`\`\`${this.guess.join(' ')}\t\t\t\t\t Guesses Left: ${this.wrongAttempts}\`\`\``);
+
+    this.hangmanMessage = await message.embed(this.hangmanEmbed);
 
     const filter = msg =>
       (this.word.toLowerCase() === msg.content.toLowerCase()
-        || this.word.toLowerCase().indexOf(msg.content.toLowerCase()) >= 0);
+        || (msg.content.length === 1 &&
+          this.word.toLowerCase().indexOf(msg.content.toLowerCase()) >= 0));
 
     this.hangmanCollector = new HangmanCollector(message.channel,
       filter, {
@@ -92,13 +93,12 @@ module.exports = class Hangman extends Game {
     // When a correct Guess is made by the player.
     this.hangmanCollector.on('collect', async (element) => {
       winston.info(`[HANGMAN]: "${this.word}" Collected: ${element}`);
+      this.guess.push(element);
       if (element.toLowerCase() === this.word.toLowerCase()) {
         return;
       }
-      this.guess.push(element);
-      const regex = new RegExp(`[^${this.guess.join('')} ]`, 'gi');
       this.hangmanMessage = await this.hangmanMessage
-        .edit(`**__Wrong Guesses__**: ${this.wrongGuesses.join(', ')}\n\`\`\`${this.word.replace(regex, '_ ')}\t\t\t\t\t Guesses Left: ${this.wrongAttempts}\`\`\``);
+        .edit('', { embed: this.editEmbed(this.hangmanMessage.embeds[0]) });
     });
 
     // When a Wrong Guess is made.
@@ -106,9 +106,8 @@ module.exports = class Hangman extends Game {
       winston.info(`[HANGMAN]: Wrong Guess on word "${this.word}" ! Guesses Left: ${wrongAttempts}`);
       this.wrongAttempts = wrongAttempts;
       this.wrongGuesses.push(wrongGuess);
-      const regex = new RegExp(`[^${this.guess.join('')} ]`, 'gi');
       this.hangmanMessage = await this.hangmanMessage
-        .edit(`**__Wrong Guesses__**: ${this.wrongGuesses.join(', ')}\n\`\`\`${this.word.replace(regex, '_ ')}\t\t\t\t\t Guesses Left: ${wrongAttempts}\`\`\``);
+        .edit('', { embed: this.editEmbed(this.hangmanMessage.embeds[0]) });
     });
 
     // When Collected Ends.
@@ -117,14 +116,41 @@ module.exports = class Hangman extends Game {
       if (reason === 'limit') {
         this.award();
       } else if (reason === 'wrong') {
-        this.hangmanMessage = await this.hangmanMessage.edit(`${this.hangmanMessage.content}\nIncorrect, The Word is "${this.word}"`);
+        this.hangmanMessage = await this.hangmanMessage
+          .edit(`Incorrect, The Word is "${this.word}"`, { embed: this.editEmbed(this.hangmanMessage.embeds[0]) });
       } else if (reason === 'time') {
-        this.hangmanMessage = await this.hangmanMessage.edit(`${this.hangmanMessage.content}\nGame has ended due to being idle\nThe word is "${this.word}"!`);
+        this.hangmanMessage = await this.hangmanMessage
+          .edit(`Game has ended due to inactivity\nThe word is "${this.word}"!`,
+          { embed: this.editEmbed(this.hangmanMessage.embeds[0]) });
       } else {
-        this.hangmanMessage = await this.hangmanMessage.edit(`${this.hangmanMessage.content}\nGame has ended by user\nThe word is "${this.word}"!`);
+        this.hangmanMessage = await this.hangmanMessage
+          .edit(`You Ended the Game\nThe word is "${this.word}"!`, { embed: this.editEmbed(this.hangmanMessage.embeds[0]) });
       }
       this.endGame();
     });
+  }
+
+  get hangmanEmbed() {
+    const alpha = this.guess.length === 0 ? '[a-z]' : `[^${this.guess.join(' ')} ]`;
+    const regex = new RegExp(`${alpha}`, 'gi');
+    const embed = new RichEmbed();
+    embed.setColor('RANDOM');
+    embed.setAuthor(this.player.tag, this.player.displayAvatarURL());
+    embed.setTitle('Hangman');
+    embed.setDescription(`**__Wrong Guesses:__** ${this.wrongGuesses.join(', ')}
+    \n**__Guesses Left:__** ${this.wrongAttempts}\n\`\`\`${this.word.replace(regex, '_ ')}\`\`\``);
+    embed.setTimestamp(new Date());
+    embed.setFooter(this.client.user.username, this.client.user.displayAvatarURL);
+    return embed;
+  }
+
+  editEmbed(oldEmbed) {
+    const alpha = this.guess.length === 0 ? '[a-z]' : `[^${this.guess.join(' ')} ]`;
+    const regex = new RegExp(`${alpha}`, 'gi');
+    const embed = new RichEmbed(oldEmbed);
+    embed.setDescription(`**__Wrong Guesses:__** ${this.wrongGuesses.join(', ')}
+    \n**__Guesses Left:__** ${this.wrongAttempts}\n\`\`\`${this.word.replace(regex, '_ ')}\`\`\``);
+    return embed;
   }
 
   async getWord(message) {
@@ -153,8 +179,7 @@ module.exports = class Hangman extends Game {
   async award() {
     await this.client.scoreboard.award(this.player.id, 200);
     this.hangmanMessage = await this.hangmanMessage
-      .edit(`**__Wrong Guesses__**: ${this.wrongGuesses.join(', ')}
-      \n\`\`\`${this.word}\t\t\t\t\t Guesses Left: ${this.wrongAttempts}\`\`\`\nCorrect ! You gained 200 Kittens !`);
+      .edit('Correct ! You gained 200 Kittens !', { embed: this.editEmbed(this.hangmanMessage.embeds[0]) });
   }
 
   handleError(message, error) {
