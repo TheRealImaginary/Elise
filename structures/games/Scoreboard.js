@@ -50,7 +50,7 @@ module.exports = class Scoreboard {
 
   /**
    * Fetches the Current Scoreboard.
-   * @returns {Array<object>} An Array of UserIDs and Points.
+   * @returns {Promise<Array<object>>} An Array of UserIDs and Points.
    */
   getAll() {
     return this.redisClient.hgetallAsync('scoreboard');
