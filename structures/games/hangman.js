@@ -2,7 +2,7 @@ const axios = require('axios');
 const winston = require('winston');
 const Game = require('./game');
 const HangmanCollector = require('../HangmanCollector');
-const { distinct } = require('../../util/randomizer');
+const { distinct } = require('../../util/util');
 
 const DICTIONARY_APIKEY = process.env.DICTIONARY_APIKEY;
 

@@ -2,7 +2,7 @@ const axios = require('axios');
 const winston = require('winston');
 const he = require('he');
 const { RichEmbed } = require('discord.js');
-const { shuffle, capitalize } = require('./../../util/randomizer');
+const { shuffle, capitalize } = require('./../../util/util');
 const Game = require('./game');
 
 const triviaTime = 12;
