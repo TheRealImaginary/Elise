@@ -1,7 +1,7 @@
 const { Command } = require('discord.js-commando');
-const { triviaCategories } = require('../../util/constants');
 const Trivia = require('../../structures/games/trivia');
 
+const difficulties = ['easy', 'medium', 'hard', 'any'];
 const multiple = ['mcq', 'multiple', 'choice'];
 const trueOrFalse = ['tf', 'true/false', 'boolean'];
 
@@ -17,34 +17,22 @@ module.exports = class TriviaCommand extends Command {
       Awards Points if answered correctly. All inputs are Optional.`,
       args: [{
         key: 'category',
-        prompt: 'What Category would you like to be asked in ?',
+        prompt: 'Which Category would you like to be asked in ?',
         type: 'string',
         default: 'any',
         validate(value) {
-          if (value === 'any') {
+          if (value.toLowerCase() === 'any') {
             return true;
           }
           if (isNaN(value)) {
-            const index = triviaCategories.findIndex(el => (el.split('.')[1].trim().toLowerCase() === value
-              || el === value.toLowerCase()));
-            if (index >= 0) {
-              return true;
-            }
-            return 'Category must be either an Index or a valid Category from the list.';
+            return 'Category should either be a number between 1 and 23 or "any" !';
           }
           value = parseInt(value, 10) - 1;
-          return value >= 0 && value <= 23 ? true : 'Number must be between 1 and 23 !';
+          return value >= 0 && value <= 23 ? true : 'Category number must be between 1 and 23 !';
         },
         parse(value) {
-          if (value.toLowerCase() === 'any') {
-            return 'any';
-          }
-          if (isNaN(value)) {
-            value = value.toLowerCase();
-            return triviaCategories.findIndex(el => (el.split('.')[1].trim().toLowerCase() === value
-              || el === value.toLowerCase())) + 8;
-          }
-          return parseInt(value.toLowerCase(), 10) + 8;
+          value = value.toLowerCase();
+          return value === 'any' ? value : parseInt(value, 10) + 8;
         },
       }, {
         key: 'difficulty',
@@ -52,10 +40,9 @@ module.exports = class TriviaCommand extends Command {
         type: 'string',
         default: 'any',
         validate(value) {
-          const difficulties = ['easy', 'medium', 'hard', 'any'];
           return difficulties
-            .includes(value.toLowerCase()) ? true : `Difficulty should 
-            be any of "${difficulties.join(', ')}"`;
+            .includes(value.toLowerCase()) ? true : `Difficulty must 
+            be any of "${difficulties.join(', ')}".`;
         },
         parse(value) {
           return value.toLowerCase();
@@ -72,7 +59,7 @@ module.exports = class TriviaCommand extends Command {
           }
           return `You can use any of "${multiple.join(', ')}" for MCQ Questions
           or any of "${trueOrFalse.join(', ')}" for True/False Questions. Use "any" or leave empty
-          for any Type.`;
+          for any Type of Questions.`;
         },
         parse(value) {
           value = value.toLowerCase();
