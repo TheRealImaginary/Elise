@@ -26,11 +26,13 @@ module.exports = class Trivia extends Game {
      * @type {object}
      */
     this.trivia = null;
+
     /**
      * Trivia Options
      * @type {object}
      */
     this.triviaOptions = options;
+
     /**
      * Cached Answers after shuffling.
      * @type {Array<string>}
