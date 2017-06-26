@@ -20,6 +20,9 @@
           "handleError"
         ]
       }
+    ],
+    "no-unused-vars": [
+      "warn"
     ]
   }
 }

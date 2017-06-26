@@ -5,6 +5,11 @@
  * @abstract
  */
 module.exports = class Game {
+  /**
+   * Creates an instance of Game.
+   * @param {Bot} client - Represents the Bot.
+   * @param {User} player - Represents the Player.
+   */
   constructor(client, player) {
     this.client = client;
     this.player = player;
