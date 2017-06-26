@@ -74,11 +74,16 @@ module.exports = class TriviaCommand extends Command {
     });
   }
 
-  run(message, args) {
+  run(message, { category, difficulty, type }) {
     if (this.client.games.has(message.author.id)) {
       message.say('You cannot play multiple games at once !');
     } else {
-      new Trivia(this.client, message, args);
+      new Trivia(this.client, message, {
+        amount: 1,
+        category,
+        difficulty,
+        type,
+      });
     }
   }
 };

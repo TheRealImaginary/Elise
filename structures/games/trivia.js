@@ -1,8 +1,7 @@
-const axios = require('axios');
 const winston = require('winston');
 const he = require('he');
 const { RichEmbed } = require('discord.js');
-const { shuffle, capitalize } = require('./../../util/util');
+const { shuffle, capitalize, getTrivia } = require('./../../util/util');
 const Game = require('./game');
 
 const triviaTime = 12;
@@ -50,7 +49,6 @@ module.exports = class Trivia extends Game {
 
   async play(message) {
     this.trivia = await this.getTrivia(message);
-    this.trivia = await this.trivia;
     if (!this.trivia) {
       this.endGame();
       return;
@@ -108,15 +106,8 @@ module.exports = class Trivia extends Game {
   }
 
   async getTrivia(message) {
-    const { category, difficulty, type } = this.triviaOptions;
-    const { data } = await axios.get('https://opentdb.com/api.php?', {
-      params: {
-        amount: 1,
-        category: this.parse(category),
-        difficulty: this.parse(difficulty),
-        type: this.parse(type),
-      },
-    }).catch(err => this.handleError(message, err));
+    const { data } = await getTrivia(this.triviaOptions)
+      .catch(err => this.handleError(message, err));
     if (!data || !data.results || data.results.length === 0) {
       winston.info('[TRIVIA]: No Questions Found', this.triviaOptions);
       message.say('No Questions in this Category !');
@@ -129,10 +120,6 @@ module.exports = class Trivia extends Game {
   async award(message) {
     await this.client.scoreboard.award(this.player.id, 100);
     message.say(`Correct ! ${this.trivia.correct_answer} is the correct answer ! You gained 100 Kittens !`);
-  }
-
-  parse(property) {
-    return property === 'any' ? '' : property;
   }
 
   handleError(message, err) {
