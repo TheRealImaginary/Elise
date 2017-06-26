@@ -59,10 +59,13 @@ module.exports = class Trivia extends Game {
     try {
       const filter = msg => msg.author.id === this.player.id
         && numbers.includes(msg.content.trim());
+
       const isCorrect = answer => answer.split('. ')[1] === correctAnswer;
+
       let guess = await message.channel
         .awaitMessages(filter, { max: 1, time: triviaTime * 1000, errors: ['time'] });
       guess = guess.first().content.trim();
+
       if (guess - 1 === answers.findIndex(isCorrect)) {
         this.award(message);
       } else {
