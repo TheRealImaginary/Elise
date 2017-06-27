@@ -5,7 +5,7 @@ module.exports = class TagAdd extends Command {
   constructor(client) {
     super(client, {
       name: 'add-tag',
-      aliases: [],
+      aliases: ['put-tag', 'tag-add', 'a-tag', 'tag-a'],
       group: 'tags',
       memberName: 'add-tag',
       description: `Adds a Tag with the given Name and Contents if one does not already exists !

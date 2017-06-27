@@ -8,7 +8,7 @@ module.exports = class TagInfo extends Command {
   constructor(client) {
     super(client, {
       name: 'tag-info',
-      aliases: [],
+      aliases: ['info-tag', 'i-tag', 'tag-i'],
       group: 'tags',
       memberName: 'tag-info',
       description: 'Retrieve and Displays Tag\'s Name, Use Count, CreatedAt and User who created it !',

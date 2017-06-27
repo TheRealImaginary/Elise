@@ -5,7 +5,7 @@ module.exports = class TagDelete extends Command {
   constructor(client) {
     super(client, {
       name: 'delete-tag',
-      aliases: [],
+      aliases: ['del-tag', 'tag-del', 'd-tag', 'tag-d'],
       group: 'tags',
       memberName: 'delete-tag',
       description: 'Deletes a Tag with the given name if it exists !',

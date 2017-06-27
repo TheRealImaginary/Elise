@@ -28,6 +28,15 @@ const bot = new Client({
 
 bot.on('ready', () => winston.info('[ELISE]: Elise is ready !'));
 
+/* Advisable for a user to use `tag` command for if a command's name
+ is as the Tag name this won't trigger. */
+bot.on('unknownCommand', (message) => {
+  if (message.channel.type !== 'dm' && !message.author.bot) {
+    const args = { name: message.content.split(PREFIX)[1] };
+    bot.registry.resolveCommand('tags:tag').run(message, args);
+  }
+});
+
 bot.on('commandError', (command, err, { content }, args) => {
   winston.error(`Error executing command ${command.name} on inputs ${args} with content ${content}`);
 });

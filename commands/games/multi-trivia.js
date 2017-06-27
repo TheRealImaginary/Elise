@@ -10,7 +10,7 @@ module.exports = class MultiplayerTriviaCommand extends Command {
   constructor(client) {
     super(client, {
       name: 'multiplayer-trivia',
-      aliases: ['mtrivia'],
+      aliases: ['mtrivia', 'multi-trivia', 'trivia-multi', 'trivia-m'],
       group: 'games',
       memberName: 'multi-trivia',
       description: `Starts a Multiplayer Trivia Game or Joins one if exists, Users will have 14 seconds to join, 

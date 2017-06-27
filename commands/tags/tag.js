@@ -5,7 +5,7 @@ module.exports = class TagCommand extends Command {
   constructor(client) {
     super(client, {
       name: 'tag',
-      aliases: [],
+      aliases: ['get-tag'],
       autoAliases: false,
       group: 'tags',
       memberName: 'tag',
