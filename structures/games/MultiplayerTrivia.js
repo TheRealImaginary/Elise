@@ -90,6 +90,7 @@ module.exports = class MultiplayerTrivia extends Game {
     if (this.players.length < 2) {
       message.say('No enough players to start the game !');
       this.endGame();
+      return;
     }
     let responded = [];
     const filter = (msg) => {
