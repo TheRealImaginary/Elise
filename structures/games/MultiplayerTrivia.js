@@ -6,6 +6,7 @@ const Game = require('./game');
 
 const triviaTime = 15;
 const numbers = ['1', '2', '3', '4'];
+const score = 10;
 
 /**
  * Represents a Trivia Game being played by multiple Users.
@@ -23,9 +24,9 @@ module.exports = class MultiplayerTrivia extends Game {
 
     /**
      * The Users in the Game.
-     * @type {Array<User>}
+     * @type {Array<{player: User, score: number>}
      */
-    this.players = [this.player];
+    this.players = [{ player: this.player, score: 0 }];
 
     /**
      * Trivia Data.
@@ -64,7 +65,7 @@ module.exports = class MultiplayerTrivia extends Game {
    * @param {User} player - A User joining the Game.
    */
   join(player) {
-    this.players.push(player);
+    this.players.push({ player, score: 0 });
     this.client.games.set(player.id, this);
   }
 
@@ -76,7 +77,7 @@ module.exports = class MultiplayerTrivia extends Game {
     }
     let responded = [];
     const filter = (msg) => {
-      if (this.players.findIndex(player => player.id === msg.author.id) >= 0
+      if (this.players.findIndex(p => p.player.id === msg.author.id) >= 0
         && numbers.includes(msg.content.trim())) {
         if (!responded.includes(msg.author.id)) {
           responded.push(msg.author.id);
@@ -86,17 +87,18 @@ module.exports = class MultiplayerTrivia extends Game {
       return false;
     };
 
-    const isCorrect = (answer, correctAnswer) => answer.split('. ')[1] === correctAnswer;
     /* eslint-disable no-await-in-loop */
     while (this.currentQuestion < this.trivia.length) {
-      const answers = this.answers;
-      const correctAnswer = this.trivia.correct_answer;
       await message.embed(this.triviaEmbed);
-
+      let guesses;
       try {
-        let guesses = await message.channel.awaitMessages(filter,
+        guesses = await message.channel.awaitMessages(filter,
           { max: this.players.length, time: triviaTime * 1000, errors: ['time'] });
+        const { resultMessage, scores } = this.getCorrectPlayersAndScores(guesses);
+        message.say(resultMessage, { embed: scores });
       } catch (collected) {
+        const { resultMessage, scores } = this.getCorrectPlayersAndScores(guesses);
+        message.say(`Time is up ! ${resultMessage}`, { embed: scores });
       }
       responded = [];
     }
@@ -150,13 +152,77 @@ module.exports = class MultiplayerTrivia extends Game {
     return data.results;
   }
 
+  /**
+   * Filters Correct Players and Returns a Message and Scores accordingly.
+   * @param {Collection<Snowflake, Message>} guesses - The Player guesses for the Question.
+   * @returns {{msg: string, ?scores: RichEmbed}} Message and Scores.
+   */
+  getCorrectPlayersAndScores(guesses) {
+    const correctAnswer = this.trivia.correct_answer;
+    const correctIndexFilter = answer => answer.split('. ')[1] === correctAnswer;
+    const answers = this.answers;
+    const correctIndex = answers.findIndex(correctIndexFilter);
+    const isCorrect = msg => parseInt(msg.content.trim(), 10) - 1 === correctIndex;
+    const correctPlayers = guesses.array().filter(isCorrect).map(msg => msg.author);
+    console.log(correctAnswer);
+    if (correctPlayers.length === 0) {
+      return {
+        msg: `No one got the correct answer !\nCorrect answer is ${correctAnswer}.`,
+        scores: null,
+      };
+    } else if (correctPlayers.length === 1) {
+      return {
+        msg: `${correctPlayers[0].tag} is correct !`,
+        scores: this.getScores(correctPlayers),
+      };
+    }
+    return {
+      msg: `${correctPlayers.map(user => user.tag).join(', ')} are correct !`,
+      scores: this.getScores(correctPlayers),
+    };
+  }
+
+  /**
+   * Computes players' scores and returns it.
+   * @param {Array<User>} correctPlayers - Users that got correct answers.
+   * @returns {RichEmbed} The Scores in a RichEmbed.
+   */
+  getScores(correctPlayers) {
+    console.log(this.players);
+    this.players.forEach((p) => {
+      const index = correctPlayers.findIndex(player => player.id === p.player.id);
+      if (index >= 0) {
+        p.score += score - index;
+      }
+    });
+    console.log(this.players);
+    const playerScores = this.players.map((p) => {
+      const index = correctPlayers.findIndex(player => player.id === p.player.id);
+      if (index >= 0) {
+        if (index === 0) {
+          return `**${index + 1}. ${p.player.tag} - ${p.score} Kittens (+${score - index})**`;
+        }
+        return `${index + 1}. ${p.player.tag} - ${p.score} Kittens (+${score - index})`;
+      }
+      return `${index + 1}. ${p.player.tag} - ${p.score} Kittens (+0)`;
+    });
+    const embed = new RichEmbed();
+    embed.setColor('RANDOM');
+    embed.setAuthor('Trivia Scores');
+    embed.setTitle(`Round ${this.currentQuestion + 1} / ${this.triviaOptions.amount}`);
+    embed.setDescription(playerScores.join('\n'));
+    embed.setTimestamp(new Date());
+    embed.setFooter(this.client.user.username, this.client.user.displayAvatarURL);
+    return embed;
+  }
+
   handleError(message, err) {
     this.client.emit('error', err);
     message.say('An Error Occured Fetching Trivia Question !');
   }
 
   endGame() {
-    this.players.forEach(player => this.client.games.delete(player.id));
+    this.players.forEach(p => this.client.games.delete(p.player.id));
     this.client.guildGames.delete(this.guild.id);
   }
 };
