@@ -214,6 +214,8 @@ module.exports = class MultiplayerTrivia extends Game {
       if (index >= 0) {
         p.score += score - (2 * index);
         p.lastAward = score - (2 * index);
+      } else {
+        p.lastAward = 0;
       }
     });
     this.players.sort((a, b) => b.score - a.score);
