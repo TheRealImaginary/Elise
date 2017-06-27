@@ -40,7 +40,7 @@ bot.registry
     ['fun', 'Fun'],
     ['games', 'Games'],
     ['info', 'Info'],
-    ['memes', 'Memes'],
+    ['tags', 'Tags'],
     ['mod', 'Mod'],
     ['music', 'Music'],
     ['util', 'Util'],
