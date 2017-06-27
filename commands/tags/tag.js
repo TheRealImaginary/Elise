@@ -29,6 +29,7 @@ module.exports = class TagCommand extends Command {
     const tag = await Tag.findOne({ name, guildID: message.guild.id }).exec();
     if (tag) {
       message.say(tag.content);
+      tag.use();
     } else {
       const regex = new RegExp(name, 'gi');
       let relatedTags = await Tag

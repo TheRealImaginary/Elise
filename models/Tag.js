@@ -1,3 +1,4 @@
+const winston = require('winston');
 const mongoose = require('mongoose');
 
 const tagSchema = mongoose.Schema({
@@ -32,5 +33,13 @@ const tagSchema = mongoose.Schema({
     default: Date.now(),
   },
 });
+
+tagSchema.methods.use = function use() {
+  this.uses += 1;
+  this.save()
+    .catch((err) => {
+      winston.error('[MONGODB]: An Error Occurred Incrementing Count', err);
+    });
+};
 
 module.exports = mongoose.model('Tag', tagSchema);
