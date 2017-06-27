@@ -1,5 +1,5 @@
 const { Command } = require('discord.js-commando');
-const { getRandom } = require('../../util/randomizer');
+const { getRandom } = require('../../util/util');
 
 module.exports = class Flip extends Command {
   constructor(client) {

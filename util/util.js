@@ -1,3 +1,5 @@
+const axios = require('axios');
+
 /**
  * Returns a random number between low and high Exclusive.
  * @param {number} low - Lower Bound.
@@ -59,10 +61,35 @@ function capitalize(word) {
   return `${word[0].toUpperCase()}${word.substring(1).toLowerCase()}`;
 }
 
+/**
+ * Fetches Trivia using the given Trivia Options.
+ * @param {string} { category, difficulty, type, amount } - The Trivia Category, Difficulty
+ * Type and Amount of Trivias to Fetch respectively.
+ * @returns {Promise<object>}
+ */
+function getTrivia({ category, difficulty, type, amount }) {
+  /**
+   * Parses Trivia Related Options.
+   * @param {string} property - Property to be parsed.
+   * @returns {string} - Parsed Property.
+   */
+  const parse = property => (property === 'any' ? '' : property);
+
+  return axios.get('https://opentdb.com/api.php?', {
+    params: {
+      amount,
+      category: parse(category),
+      difficulty: parse(difficulty),
+      type: parse(type),
+    },
+  });
+}
+
 module.exports = {
   randomizer,
   getRandom,
   shuffle,
   distinct,
   capitalize,
+  getTrivia,
 };

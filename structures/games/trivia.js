@@ -1,11 +1,10 @@
-const axios = require('axios');
 const winston = require('winston');
 const he = require('he');
 const { RichEmbed } = require('discord.js');
-const { shuffle, capitalize } = require('./../../util/randomizer');
+const { shuffle, capitalize, getTrivia } = require('./../../util/util');
 const Game = require('./game');
 
-const triviaTime = 12;
+const triviaTime = 15;
 const numbers = ['1', '2', '3', '4'];
 
 /**
@@ -26,11 +25,13 @@ module.exports = class Trivia extends Game {
      * @type {object}
      */
     this.trivia = null;
+
     /**
      * Trivia Options
      * @type {object}
      */
     this.triviaOptions = options;
+
     /**
      * Cached Answers after shuffling.
      * @type {Array<string>}
@@ -48,7 +49,6 @@ module.exports = class Trivia extends Game {
 
   async play(message) {
     this.trivia = await this.getTrivia(message);
-    this.trivia = await this.trivia;
     if (!this.trivia) {
       this.endGame();
       return;
@@ -59,10 +59,13 @@ module.exports = class Trivia extends Game {
     try {
       const filter = msg => msg.author.id === this.player.id
         && numbers.includes(msg.content.trim());
+
       const isCorrect = answer => answer.split('. ')[1] === correctAnswer;
+
       let guess = await message.channel
         .awaitMessages(filter, { max: 1, time: triviaTime * 1000, errors: ['time'] });
       guess = guess.first().content.trim();
+
       if (guess - 1 === answers.findIndex(isCorrect)) {
         this.award(message);
       } else {
@@ -106,15 +109,8 @@ module.exports = class Trivia extends Game {
   }
 
   async getTrivia(message) {
-    const { category, difficulty, type } = this.triviaOptions;
-    const { data } = await axios.get('https://opentdb.com/api.php?', {
-      params: {
-        amount: 1,
-        category: this.parse(category),
-        difficulty: this.parse(difficulty),
-        type: this.parse(type),
-      },
-    }).catch(err => this.handleError(message, err));
+    const { data } = await getTrivia(this.triviaOptions)
+      .catch(err => this.handleError(message, err));
     if (!data || !data.results || data.results.length === 0) {
       winston.info('[TRIVIA]: No Questions Found', this.triviaOptions);
       message.say('No Questions in this Category !');
@@ -127,10 +123,6 @@ module.exports = class Trivia extends Game {
   async award(message) {
     await this.client.scoreboard.award(this.player.id, 100);
     message.say(`Correct ! ${this.trivia.correct_answer} is the correct answer ! You gained 100 Kittens !`);
-  }
-
-  parse(property) {
-    return property === 'any' ? '' : property;
   }
 
   handleError(message, err) {

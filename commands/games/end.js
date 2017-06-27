@@ -8,7 +8,7 @@ module.exports = class EndHangman extends Command {
       autoAliases: false,
       group: 'games',
       memberName: 'endgame',
-      description: 'Ends the Hangman Game !',
+      description: 'Ends a Hangman Game !',
     });
   }
 

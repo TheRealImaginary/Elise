@@ -1,5 +1,5 @@
 const { Command } = require('discord.js-commando');
-const { randomizer } = require('../../util/randomizer');
+const { randomizer } = require('../../util/util');
 
 module.exports = class Random extends Command {
   constructor(client) {

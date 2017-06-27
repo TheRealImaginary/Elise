@@ -5,12 +5,12 @@ module.exports = class TriviaCategories extends Command {
   constructor(client) {
     super(client, {
       name: 'trivia-categories',
-      aliases: ['tcat'],
+      aliases: ['tcat', 'trivia-cat'],
       autoAliases: true,
       group: 'games',
       memberName: 'trivia-categories',
       description: `Displays all Trivia Categories. You can choose them 
-      by their Index or Full Name when starting a Trivia Game.`,
+      by their Index when starting a Trivia Game.`,
     });
   }
 

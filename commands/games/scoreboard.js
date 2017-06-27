@@ -6,7 +6,7 @@ module.exports = class Scoreboard extends Command {
   constructor(client) {
     super(client, {
       name: 'scoreboard',
-      aliases: ['leaderboard', 'scoretop', 'kitties'],
+      aliases: ['leaderboard', 'scoretop'],
       autoAliases: false,
       group: 'games',
       memberName: 'scoreboard',

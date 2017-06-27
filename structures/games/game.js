@@ -5,6 +5,11 @@
  * @abstract
  */
 module.exports = class Game {
+  /**
+   * Creates an instance of Game.
+   * @param {Bot} client - Represents the Bot.
+   * @param {User} player - Represents the Player.
+   */
   constructor(client, player) {
     this.client = client;
     this.player = player;
@@ -21,7 +26,7 @@ module.exports = class Game {
 
   /**
    * Awards the Player after winning the game.
-   * @param {any} message
+   * @param {Message} - A Message associated with the Channel that the Game started in.
    */
   async award(message) {
     throw new TypeError(`${this.constructor.name} is not implementing an 'award' method !`);

@@ -28,10 +28,17 @@ module.exports = class Bot extends Client {
     this.queues = new Map();
 
     /**
-     * Games for each player.
+     * Games for each User.
      * @type {Map<string,Game>}
      */
     this.games = new Map();
+
+    /**
+     * Games for each Guild.
+     * This is intended for Games that multiple Users can join.
+     * @type {Map<string, Game>}
+     */
+    this.guildGames = new Map();
 
     /**
      * How Many times a command has been executed.

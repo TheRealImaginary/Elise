@@ -1,89 +1,144 @@
-const { MessageCollector } = require('discord.js');
+const EventEmitter = require('events').EventEmitter;
 
 /**
- * @typedef {MessageCollectorOptions} HangmanCollectorOptions
- * @property {number} wrongGuesses - Threshold for Message Content that Fail the Filter function.
+ * A Message Collector that collects Messages sent or edited in a Channel.
+ * Idea >> https://github.com/hydrabolt/discord.js/blob/master/src/structures/interfaces/Collector.js
  */
-
-/**
- * Represents a Message Collector, Collecting messages without a time limit
- * Expires when either an amount of Messages fail the filter function or when
- * a specific amount of messages are collected.
- */
-module.exports = class HangmanCollector extends MessageCollector {
+module.exports = class HangmanCollector extends EventEmitter {
   /**
    * Creates an instance of HangmanCollector.
-   * @param {Message} message - Message which triggered Hangman Game.
-   * @param {CollectorFilter} filter - Filter function returning True/False.
-   * @param {HangmanCollectorOptions} [options={}] - The options to be applied to this collector.
+   * @param {Channel} channel - The Channel on which Messages should be Collected.
+   * @param {Function} filter - A Boolean Function to determine which Messages to collect.
+   * @param {any} options - Options to be used by this collector.
    */
-  constructor(message, filter, options = {}) {
-    super(message.channel, filter, options);
-
-    this.options.max = this.options.maxMatches;
-    this.options.maxProcessed = 10000;
-
+  constructor(channel, filter, options) {
+    super();
+    console.log(options);
     /**
-     * Represents the Player that triggered the Game.
-     * @type {User}
+     * Represents the Client.
+     * @type {Bot}
      */
-    this.player = message.author;
+    this.client = channel.client;
 
     /**
-     * Wrong Guesses made during the game
-     * @type {Set<string>}
+     * Represents the Channel.
+     * @type {channel}
      */
-    this.wrong = new Set();
+    this.channel = channel;
 
     /**
-     * Amount of acceptable Wrong Guesses.
+     * Represents the Filter Function.
+     */
+    this.filter = filter;
+
+    /**
+     * Options for this Collector.
+     */
+    this.options = options;
+
+    /**
+     * Whether this Collector has ended or no.
+     */
+    this.ended = false;
+
+    /**
+     * The function to be executed whenever a Message is edited or sent.
+     */
+    this.listener = this.handle.bind(this);
+
+    /**
+     * Represents the Timeout which is responsible for stopping the Collector
+     * after a specified time duration ends.
+     */
+    this._timeout = null;
+
+    /**
+     * The Maximum number of wrong guesses.
      * @type {number}
      */
-    this.wrongGuesses = options.wrongGuesses || 10;
+    this.options.wrongAttempts = this.options.wrongAttempts || 10;
+
+    if (options.time && options.time > 0) {
+      this._timeout = setTimeout(() => this.stop('time'), options.time);
+    }
+
+    this.client.on('message', this.listener);
+
+    this.client.on('messageUpdate', this.listener);
   }
 
   /**
+   * Ran when a Message is Sent or Edited.
+   * @param {any} oldMessage - The Old Message.
+   * @param {any} newMessage - The New Message.
+   * @emits HangmanCollector#collect
    * @emits HangmanCollector#wrong
    */
-  handle(message) {
-    if (message.channel.id !== this.channel.id || message.author.bot
-      || message.author.id !== this.player.id
-      || message.content.startsWith(this.client.commandPrefix)) {
-      return null;
-    }
-    this.received += 1;
-    if (!this.filter(message) && !this.wrong.has(message.content)) {
-      if (!this.ended) {
-        this.wrongGuesses -= 1;
-        this.wrong.add(message.content);
-        this.emit('wrong', this.wrongGuesses);
-        const check = this.wrongCheck();
-        if (check) {
-          this.stop(check);
-          return null;
-        }
+  handle(oldMessage, newMessage) {
+    const collect = this.get(oldMessage, newMessage);
+    if (collect) {
+      if (this.filter(newMessage || oldMessage)) {
+        this.options.maxMatches -= newMessage ?
+          newMessage.content.length : oldMessage.content.length;
+        this.emit('collect', collect.value.content);
+      } else if (!this.filter(newMessage || oldMessage)) {
+        this.options.wrongAttempts -= 1;
+        this.emit('wrong', this.options.wrongAttempts,
+          newMessage ? newMessage.content : oldMessage.content);
+      }
+      const reason = this.postCheck();
+      if (reason) {
+        this.stop(reason);
       }
     }
+  }
+
+  /**
+   * Ran when a Message is Sent or Edited.
+   * @param {Message} oldMessage - The Old Message.
+   * @param {Message} newMessage - The New Message.
+   * @returns {?{key: Snowflake, value: Message}}
+   */
+  get(oldMessage, newMessage) {
+    if (!newMessage) {
+      newMessage = oldMessage;
+    }
+    if (newMessage.channel.id !== this.channel.id || newMessage.author.bot) {
+      return null;
+    }
     return {
-      key: message.id,
-      value: message.content,
+      key: newMessage.id,
+      value: newMessage,
     };
   }
 
   /**
-   * Checks if this collector should end if we reach
-   * Wrong Guesses limit.
-   * @returns {string} Reason for ending the collecter.
+   * Checks whether this Collector should end or no.
+   * @returns {?string} Reason why the Collector should end if yes.
    */
-  wrongCheck() {
-    return this.wrongGuesses === 0 ? 'wrong' : null;
+  postCheck() {
+    if (this.options.maxMatches <= 0) {
+      return 'limit';
+    } else if (this.options.wrongAttempts === 0) {
+      return 'wrong';
+    }
+    return null;
   }
 
-  postCheck(message) {
-    const post = super.postCheck();
-    if (post) {
-      return post;
+  /**
+   * Ends this Collector with the specified reason.
+   * @param {string} [reason='user'] - The Reason why this Collector ended.
+   * @emits HangmanCollector#end
+   */
+  stop(reason = 'user') {
+    if (!this.ended) {
+      this.client.removeListener('message', this.listener);
+      this.client.removeListener('messageUpdate', this.listener);
+      if (this._timeout) {
+        clearTimeout(this._timeout);
+      }
+      this.ended = true;
+      this.emit('end', reason);
     }
-    return message.content.length >= this.options.maxMatches ? 'limit' : null;
   }
 };

@@ -1,20 +1,21 @@
 const { Command } = require('discord.js-commando');
-const Trivia = require('../../structures/games/trivia');
+const MultiplayerTrivia = require('../../structures/games/MultiplayerTrivia');
 
+const triviaAmount = 10;
 const difficulties = ['easy', 'medium', 'hard', 'any'];
 const multiple = ['mcq', 'multiple', 'choice'];
 const trueOrFalse = ['tf', 'true/false', 'boolean'];
 
-module.exports = class TriviaCommand extends Command {
+module.exports = class MultiplayerTriviaCommand extends Command {
   constructor(client) {
     super(client, {
-      name: 'trivia',
-      aliases: [],
-      autoAliases: false,
+      name: 'multiplayer-trivia',
+      aliases: ['mtrivia', 'multi-trivia', 'trivia-multi', 'trivia-m'],
       group: 'games',
-      memberName: 'trivia',
-      description: `Asks a Question given a Category, Difficulty, Type. 
-      Awards Points if answered correctly. All inputs are Optional.`,
+      memberName: 'multi-trivia',
+      description: `Starts a Multiplayer Trivia Game or Joins one if exists, Users will have 14 seconds to join, 
+      after which a series of ${triviaAmount} questions are asked and players are awarded according to 
+      the order they answer in. **Two** or **more** players must join in order for the game to start.`,
       args: [{
         key: 'category',
         prompt: 'Which Category would you like to be asked in ?',
@@ -71,19 +72,32 @@ module.exports = class TriviaCommand extends Command {
           return 'any';
         },
       }],
+      guildOnly: true,
     });
   }
 
   run(message, { category, difficulty, type }) {
     if (this.client.games.has(message.author.id)) {
-      message.say('You cannot play multiple games at once !');
+      message.say('You cannot play mutiple games at once !');
+    } else if (this.client.guildGames.has(message.guild.id)) {
+      const game = this.client.guildGames.get(message.guild.id);
+      if (game.joinable) {
+        game.join(message.author);
+        message.say(`${message.author.tag} has joined !`);
+      } else {
+        message.say('Game join duration is over !');
+      }
     } else {
-      new Trivia(this.client, message, {
-        amount: 1,
+      const trivia = new MultiplayerTrivia(this.client, message, {
+        amount: triviaAmount,
         category,
         difficulty,
         type,
       });
+      message.say(`${message.author.tag} has started and joined a Trivia Game ! Use "mtrivia" to join ! 14 Second are left !`);
+      setTimeout(() => message.say('4 seconds left to join !'), 10 * 1000);
+      setTimeout(() => trivia.play(message), 15 * 1000);
     }
   }
 };
+
