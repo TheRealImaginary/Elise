@@ -9,21 +9,17 @@ module.exports = class TagAdd extends Command {
       group: 'tags',
       memberName: 'add-tag',
       description: `Adds a Tag with the given Name and Contents if one does not already exists !
-      Markdown can be used ! You can supply a 'relateTo' property which is usefull when searching
-      for Tags.`,
+      Markdown can be used !`,
       args: [{
         key: 'name',
         prompt: 'What would you like the Tag\'s name to be ?',
         type: 'string',
+        parse: value => value.toLowerCase(),
       }, {
         key: 'content',
         prompt: 'What is the Tag\'s content ?',
         type: 'string',
-      }, {
-        key: 'relatedTo',
-        prompt: 'Is this tag related to something ?!',
-        type: 'string',
-        default: '',
+        max: 1500,
       }],
       throttling: {
         usages: 2,
@@ -34,7 +30,7 @@ module.exports = class TagAdd extends Command {
   }
 
   // Message's Contents could have mentions, userID's ..etc, Should probably clean them !
-  async run(message, { name, content, relatedTo }) {
+  async run(message, { name, content }) {
     let tag = await Tag.findOne({ name, guildID: message.guildID }).exec();
     if (tag) {
       message.reply(`A Tag with the name ${name} already exists !`);
@@ -43,7 +39,6 @@ module.exports = class TagAdd extends Command {
     tag = new Tag({
       name,
       content,
-      relatedTo,
       addedBy: message.author.id,
       guildID: message.guild.id,
     });

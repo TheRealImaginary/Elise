@@ -19,11 +19,11 @@ module.exports = class TagList extends Command {
 
   async run(message) {
     let tags = await Tag.find({ guildID: message.guild.id }).exec();
-    if (!tags) {
+    if (!tags || tags.length === 0) {
       message.reply('We currently do not have any Tags. Why not add one ?!');
       return;
     }
-    tags = tags.map(tag => `**${tag.name}**`).join('**,** ');
+    tags = tags.map(tag => `**${tag.name}**`).join(', ');
     message.say(`**__Guild Tags__**\n${tags}`);
   }
 };
