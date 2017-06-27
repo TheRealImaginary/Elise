@@ -38,6 +38,7 @@ module.exports = class TagAdd extends Command {
     let tag = await Tag.findOne({ name, guildID: message.guildID }).exec();
     if (tag) {
       message.reply(`A Tag with the name ${name} already exists !`);
+      return;
     }
     tag = new Tag({
       name,

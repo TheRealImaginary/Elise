@@ -40,9 +40,9 @@ bot.registry
     ['fun', 'Fun'],
     ['games', 'Games'],
     ['info', 'Info'],
-    ['tags', 'Tags'],
     ['mod', 'Mod'],
     ['music', 'Music'],
+    ['tags', 'Tags'],
     ['util', 'Util'],
     ['weather', 'Weather'],
   ])
