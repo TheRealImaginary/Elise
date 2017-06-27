@@ -4,7 +4,7 @@ module.exports = class MyScore extends Command {
   constructor(client) {
     super(client, {
       name: 'myscore',
-      aliases: ['kitties', 'kittens'],
+      aliases: ['kitties', 'kittens', 'mykittens'],
       autoAliases: false,
       group: 'games',
       memberName: 'myscore',

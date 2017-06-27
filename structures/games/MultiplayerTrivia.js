@@ -1,3 +1,4 @@
+const bluebird = require('bluebird');
 const winston = require('winston');
 const he = require('he');
 const { RichEmbed } = require('discord.js');
@@ -6,7 +7,8 @@ const Game = require('./game');
 
 const triviaTime = 15;
 const numbers = ['1', '2', '3', '4'];
-const score = 10;
+const score = 20;
+const joinPhase = 14;
 
 /**
  * Represents a Trivia Game being played by multiple Users.
@@ -15,9 +17,9 @@ const score = 10;
 module.exports = class MultiplayerTrivia extends Game {
   /**
    * Creates an instance of MultiplayerTrivia.
-   * @param {any} client - Represents the Bot.
+   * @param {Bot} client - Represents the Bot.
    * @param {Message} message - Represents the Message that triggered the Trivia Game.
-   * @param {any} options - The Options for the Trivia Game.
+   * @param {object} options - The Options for the Trivia Game.
    */
   constructor(client, message, options) {
     super(client, message.author);
@@ -26,7 +28,7 @@ module.exports = class MultiplayerTrivia extends Game {
      * The Users in the Game.
      * @type {Array<{player: User, score: number>}
      */
-    this.players = [{ player: this.player, score: 0 }];
+    this.players = [{ player: this.player, score: 0, lastAward: 0 }];
 
     /**
      * Trivia Data.
@@ -57,6 +59,14 @@ module.exports = class MultiplayerTrivia extends Game {
      */
     this.guild = message.guild;
 
+    /**
+     * Whether this game is joinable by a User or no.
+     * @type {boolean}
+     */
+    this.joinable = true;
+
+    setTimeout(() => { this.joinable = false; }, joinPhase * 1000);
+
     this.client.guildGames.set(message.guild.id, this);
   }
 
@@ -65,8 +75,10 @@ module.exports = class MultiplayerTrivia extends Game {
    * @param {User} player - A User joining the Game.
    */
   join(player) {
-    this.players.push({ player, score: 0 });
-    this.client.games.set(player.id, this);
+    if (this.joinable) {
+      this.players.push({ player, score: 0, lastAward: 0 });
+      this.client.games.set(player.id, this);
+    }
   }
 
   async play(message) {
@@ -89,19 +101,23 @@ module.exports = class MultiplayerTrivia extends Game {
 
     /* eslint-disable no-await-in-loop */
     while (this.currentQuestion < this.trivia.length) {
-      await message.embed(this.triviaEmbed);
+      await bluebird.delay(1000, message.embed(this.triviaEmbed));
       let guesses;
       try {
         guesses = await message.channel.awaitMessages(filter,
           { max: this.players.length, time: triviaTime * 1000, errors: ['time'] });
-        const { resultMessage, scores } = this.getCorrectPlayersAndScores(guesses);
-        message.say(resultMessage, { embed: scores });
+        const { msg, scores } = this.getCorrectPlayersAndScores(guesses);
+        message.say(msg, { embed: scores });
       } catch (collected) {
-        const { resultMessage, scores } = this.getCorrectPlayersAndScores(guesses);
-        message.say(`Time is up ! ${resultMessage}`, { embed: scores });
+        const { msg, scores } = this.getCorrectPlayersAndScores(guesses);
+        message.say(`Time is up ! ${msg}`, { embed: scores });
       }
       responded = [];
+      this._answers = null;
+      this.currentQuestion += 1;
     }
+    this.award(message);
+    this.endGame();
     /* eslint-enable no-await-in-loop */
   }
 
@@ -158,26 +174,25 @@ module.exports = class MultiplayerTrivia extends Game {
    * @returns {{msg: string, ?scores: RichEmbed}} Message and Scores.
    */
   getCorrectPlayersAndScores(guesses) {
-    const correctAnswer = this.trivia.correct_answer;
+    const correctAnswer = this.trivia[this.currentQuestion].correct_answer;
     const correctIndexFilter = answer => answer.split('. ')[1] === correctAnswer;
     const answers = this.answers;
     const correctIndex = answers.findIndex(correctIndexFilter);
     const isCorrect = msg => parseInt(msg.content.trim(), 10) - 1 === correctIndex;
     const correctPlayers = guesses.array().filter(isCorrect).map(msg => msg.author);
-    console.log(correctAnswer);
     if (correctPlayers.length === 0) {
       return {
-        msg: `No one got the correct answer !\nCorrect answer is ${correctAnswer}.`,
-        scores: null,
+        msg: `No one got the correct answer !\nCorrect answer is ${he.decode(correctAnswer)}.\n`,
+        scores: this.getScores(correctPlayers),
       };
     } else if (correctPlayers.length === 1) {
       return {
-        msg: `${correctPlayers[0].tag} is correct !`,
+        msg: `${correctPlayers[0].tag} is correct !\n`,
         scores: this.getScores(correctPlayers),
       };
     }
     return {
-      msg: `${correctPlayers.map(user => user.tag).join(', ')} are correct !`,
+      msg: `${correctPlayers.map(user => user.tag).join(', ')} are correct !\n`,
       scores: this.getScores(correctPlayers),
     };
   }
@@ -188,23 +203,19 @@ module.exports = class MultiplayerTrivia extends Game {
    * @returns {RichEmbed} The Scores in a RichEmbed.
    */
   getScores(correctPlayers) {
-    console.log(this.players);
     this.players.forEach((p) => {
       const index = correctPlayers.findIndex(player => player.id === p.player.id);
       if (index >= 0) {
-        p.score += score - index;
+        p.score += score - (2 * index);
+        p.lastAward = score - (2 * index);
       }
     });
-    console.log(this.players);
-    const playerScores = this.players.map((p) => {
-      const index = correctPlayers.findIndex(player => player.id === p.player.id);
-      if (index >= 0) {
-        if (index === 0) {
-          return `**${index + 1}. ${p.player.tag} - ${p.score} Kittens (+${score - index})**`;
-        }
-        return `${index + 1}. ${p.player.tag} - ${p.score} Kittens (+${score - index})`;
+    this.players.sort((a, b) => a.score - b.score);
+    const playerScores = this.players.map((p, index) => {
+      if (index === 0) {
+        return `**${index + 1}. ${p.player.tag} - ${p.score} Kittens (+${p.lastAward})**`;
       }
-      return `${index + 1}. ${p.player.tag} - ${p.score} Kittens (+0)`;
+      return `${index + 1}. ${p.player.tag} - ${p.score} Kittens (+${p.lastAward})`;
     });
     const embed = new RichEmbed();
     embed.setColor('RANDOM');
@@ -216,13 +227,31 @@ module.exports = class MultiplayerTrivia extends Game {
     return embed;
   }
 
-  handleError(message, err) {
-    this.client.emit('error', err);
-    message.say('An Error Occured Fetching Trivia Question !');
+  async award(message) {
+    await Promise.all(this.players
+      .map(p => this.client.scoreboard.award(p.player.id, p.score)));
+    const winner = this.players.reduce((acc, p) => {
+      if (p.score > acc.score) {
+        return p;
+      }
+      return acc;
+    }, { score: 0 });
+    let resultMessage = 'Game Over !';
+    if (!winner.player) {
+      resultMessage = `${resultMessage} There were no winners !`;
+    } else {
+      resultMessage = `${resultMessage} Winner is **__${winner.player.tag}__** with **${winner.score} kittens** !`;
+    }
+    message.say(resultMessage);
   }
 
   endGame() {
     this.players.forEach(p => this.client.games.delete(p.player.id));
     this.client.guildGames.delete(this.guild.id);
+  }
+
+  handleError(message, err) {
+    this.client.emit('error', err);
+    message.say('An Error Occured Fetching Trivia Question !');
   }
 };
