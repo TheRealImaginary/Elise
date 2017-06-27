@@ -4,6 +4,9 @@ const { RichEmbed } = require('discord.js');
 const { shuffle, capitalize, getTrivia } = require('../../util/util');
 const Game = require('./game');
 
+const triviaTime = 15;
+const numbers = ['1', '2', '3', '4'];
+
 /**
  * Represents a Trivia Game being played by multiple Users.
  * @extends Game
@@ -29,6 +32,12 @@ module.exports = class MultiplayerTrivia extends Game {
      * @type {Array<object>}
      */
     this.trivia = null;
+
+    /**
+     * Current Question.
+     * @type {number}
+     */
+    this.currentQuestion = 0;
 
     /**
      * Trivia Options used by the Trivia Game.
@@ -65,15 +74,63 @@ module.exports = class MultiplayerTrivia extends Game {
       this.endGame();
       return;
     }
-    const answers = this.answers;
-    const correctAnswer = this.trivia.correct_answer;
+    let responded = [];
+    const filter = (msg) => {
+      if (this.players.findIndex(player => player.id === msg.author.id) >= 0
+        && numbers.includes(msg.content.trim())) {
+        if (!responded.includes(msg.author.id)) {
+          responded.push(msg.author.id);
+          return true;
+        }
+      }
+      return false;
+    };
+
+    const isCorrect = (answer, correctAnswer) => answer.split('. ')[1] === correctAnswer;
+    /* eslint-disable no-await-in-loop */
+    while (this.currentQuestion < this.trivia.length) {
+      const answers = this.answers;
+      const correctAnswer = this.trivia.correct_answer;
+      await message.embed(this.triviaEmbed);
+
+      try {
+        let guesses = await message.channel.awaitMessages(filter,
+          { max: this.players.length, time: triviaTime * 1000, errors: ['time'] });
+      } catch (collected) {
+      }
+      responded = [];
+    }
+    /* eslint-enable no-await-in-loop */
   }
 
+  /**
+   * Represents the Trivia Question/Answers as an Embed Message.
+   * @readonly
+   */
+  get triviaEmbed() {
+    const { category, type, difficulty, question } = this.trivia[this.currentQuestion];
+    const answers = this.answers;
+    const embed = new RichEmbed();
+    embed.setColor('RANDOM');
+    embed.setAuthor(`Info: ${category} | ${capitalize(type)} | ${capitalize(difficulty)}`);
+    embed.setTitle(`You have **${triviaTime} seconds** to answer !`);
+    embed.addField('➤Question', `⬧${he.decode(question)}`);
+    embed.addField('➤Answers', answers.join('\n'));
+    embed.setTimestamp(new Date());
+    embed.setFooter(this.client.user.username, this.client.user.displayAvatarURL);
+    return embed;
+  }
+
+  /**
+   * Returns the answered shuffled and indexed.
+   * @readonly
+   */
   get answers() {
     if (this._answers) {
       return this._answers;
     }
-    const { correct_answer: correctAnswer, incorrect_answers: incorrectAnswers } = this.trivia;
+    const { correct_answer: correctAnswer,
+      incorrect_answers: incorrectAnswers } = this.trivia[this.currentQuestion];
     const answers = [].concat(incorrectAnswers);
     answers.push(correctAnswer);
     shuffle(answers);
