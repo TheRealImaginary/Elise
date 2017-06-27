@@ -87,6 +87,10 @@ module.exports = class MultiplayerTrivia extends Game {
       this.endGame();
       return;
     }
+    if (this.players.length < 2) {
+      message.say('No enough players to start the game !');
+      this.endGame();
+    }
     let responded = [];
     const filter = (msg) => {
       if (this.players.findIndex(p => p.player.id === msg.author.id) >= 0
@@ -123,6 +127,7 @@ module.exports = class MultiplayerTrivia extends Game {
 
   /**
    * Represents the Trivia Question/Answers as an Embed Message.
+   * @type {RichEmbed}
    * @readonly
    */
   get triviaEmbed() {
