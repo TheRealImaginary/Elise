@@ -216,7 +216,7 @@ module.exports = class MultiplayerTrivia extends Game {
         p.lastAward = score - (2 * index);
       }
     });
-    this.players.sort((a, b) => a.score - b.score);
+    this.players.sort((a, b) => b.score - a.score);
     const playerScores = this.players.map((p, index) => {
       if (index === 0) {
         return `**${index + 1}. ${p.player.tag} - ${p.score} Kittens (+${p.lastAward})**`;
