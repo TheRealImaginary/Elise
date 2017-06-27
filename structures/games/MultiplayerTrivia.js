@@ -82,13 +82,13 @@ module.exports = class MultiplayerTrivia extends Game {
   }
 
   async play(message) {
-    this.trivia = await this.getTrivia(message);
-    if (!this.trivia) {
+    if (this.players.length < 2) {
+      message.say('No enough players to start the game !');
       this.endGame();
       return;
     }
-    if (this.players.length < 2) {
-      message.say('No enough players to start the game !');
+    this.trivia = await this.getTrivia(message);
+    if (!this.trivia) {
       this.endGame();
       return;
     }
@@ -106,7 +106,7 @@ module.exports = class MultiplayerTrivia extends Game {
 
     /* eslint-disable no-await-in-loop */
     while (this.currentQuestion < this.trivia.length) {
-      await bluebird.delay(1000, message.embed(this.triviaEmbed));
+      await bluebird.delay(1800, message.embed(this.triviaEmbed));
       let guesses;
       try {
         guesses = await message.channel.awaitMessages(filter,
@@ -114,7 +114,7 @@ module.exports = class MultiplayerTrivia extends Game {
         const { msg, scores } = this.getCorrectPlayersAndScores(guesses);
         message.say(msg, { embed: scores });
       } catch (collected) {
-        const { msg, scores } = this.getCorrectPlayersAndScores(guesses);
+        const { msg, scores } = this.getCorrectPlayersAndScores(collected);
         message.say(`Time is up ! ${msg}`, { embed: scores });
       }
       responded = [];

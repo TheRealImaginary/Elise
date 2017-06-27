@@ -1,7 +1,7 @@
 const { Command } = require('discord.js-commando');
 const MultiplayerTrivia = require('../../structures/games/MultiplayerTrivia');
 
-const triviaAmount = 2;
+const triviaAmount = 10;
 const difficulties = ['easy', 'medium', 'hard', 'any'];
 const multiple = ['mcq', 'multiple', 'choice'];
 const trueOrFalse = ['tf', 'true/false', 'boolean'];
