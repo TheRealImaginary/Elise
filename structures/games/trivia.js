@@ -87,7 +87,7 @@ module.exports = class Trivia extends Game {
     const answers = this.answers;
     embed.setColor('RANDOM');
     embed.setAuthor(`Info: ${category} | ${capitalize(type)} | ${capitalize(difficulty)}`
-      , this.message.author.displayAvatarURL());
+      , this.message.author.displayAvatarURL);
     embed.setTitle(`You have **${triviaTime} seconds** to answer !`);
     embed.addField('➤Question', `⬧${he.decode(question)}`);
     embed.addField('➤Answers', answers.join('\n'));

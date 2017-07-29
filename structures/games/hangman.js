@@ -137,7 +137,7 @@ module.exports = class Hangman extends Game {
     const regex = new RegExp(`${alpha}`, 'gi');
     const embed = new RichEmbed();
     embed.setColor('RANDOM');
-    embed.setAuthor(this.player.tag, this.player.displayAvatarURL());
+    embed.setAuthor(this.player.tag, this.player.displayAvatarURL);
     embed.setTitle('Hangman');
     embed.setDescription(`**__Wrong Guesses:__** ${this.wrongGuesses.join(', ')}
     \n**__Guesses Left:__** ${this.wrongAttempts}\n\`\`\`${this.word.replace(regex, '_ ')}\`\`\``);

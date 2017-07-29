@@ -40,12 +40,12 @@ module.exports = class TagInfo extends Command {
     const user = await this.client.fetchUser(tag.addedBy);
     const embed = new RichEmbed();
     embed.setColor('RANDOM');
-    embed.setAuthor('Tag Info', user.displayAvatarURL());
+    embed.setAuthor('Tag Info', user.displayAvatarURL);
     embed.addField('➤ User', `⬧ ${user.tag}`, true);
     embed.addField('➤ Tag Name', `⬧ ${tag.name}`, true);
     embed.addField('➤ Uses', `⬧ ${tag.uses}`, true);
     embed.addField('➤ Created At', `⬧ ${moment(tag.createdAt).format('ddd MMM Do YYYY hh:mm:ss A')}`);
-    embed.setFooter(this.client.user.username, this.client.user.displayAvatarURL());
+    embed.setFooter(this.client.user.username, this.client.user.displayAvatarURL);
     return embed;
   }
 };
