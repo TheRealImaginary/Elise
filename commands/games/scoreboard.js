@@ -21,7 +21,7 @@ module.exports = class Scoreboard extends Command {
     embed.setDescription(scoreboard.join('\n'));
     embed.setColor('RANDOM');
     embed.setTimestamp(new Date());
-    embed.setFooter(this.client.user.username, this.client.user.avatarURL());
+    embed.setFooter(this.client.user.username, this.client.user.avatarURL);
     message.embed(embed);
   }
 
