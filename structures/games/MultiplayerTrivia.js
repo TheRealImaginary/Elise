@@ -106,7 +106,8 @@ module.exports = class MultiplayerTrivia extends Game {
 
     /* eslint-disable no-await-in-loop */
     while (this.currentQuestion < this.trivia.length) {
-      await bluebird.delay(1800, message.embed(this.triviaEmbed));
+      await bluebird.delay(1800);
+      await message.embed(this.triviaEmbed);
       let guesses;
       try {
         guesses = await message.channel.awaitMessages(filter,
