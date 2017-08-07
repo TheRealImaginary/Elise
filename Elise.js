@@ -12,13 +12,13 @@ winston.configure({
 
 const { Constants } = require('discord.js');
 
-const Client = require('./structures/bot');
+const EliseClient = require('./structures/EliseClient');
 
 const Events = Object.values(Constants.Events);
 
 const { PREFIX, TOKEN, OWNER, ENABLED_EVENTS } = process.env;
 
-const bot = new Client({
+const bot = new EliseClient({
   commandPrefix: PREFIX,
   unknownCommandResponse: false,
   owner: OWNER,

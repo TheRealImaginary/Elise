@@ -1,5 +1,5 @@
 const { Command } = require('discord.js-commando');
-const Hangman = require('../../structures/games/hangman');
+const Hangman = require('../../structures/games/Hangman');
 
 module.exports = class HangmanCommand extends Command {
   constructor(client) {

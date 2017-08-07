@@ -1,5 +1,5 @@
 const { Command } = require('discord.js-commando');
-const { triviaCategories } = require('../../util/constants');
+const { triviaCategories } = require('../../util/Constants');
 
 module.exports = class TriviaCategories extends Command {
   constructor(client) {

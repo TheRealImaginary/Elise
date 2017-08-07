@@ -1,5 +1,5 @@
 const { Command } = require('discord.js-commando');
-const Trivia = require('../../structures/games/trivia');
+const Trivia = require('../../structures/games/Trivia');
 
 const difficulties = ['easy', 'medium', 'hard', 'any'];
 const multiple = ['mcq', 'multiple', 'choice'];

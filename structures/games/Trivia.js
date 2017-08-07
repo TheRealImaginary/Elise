@@ -1,8 +1,8 @@
 const winston = require('winston');
 const he = require('he');
 const { RichEmbed } = require('discord.js');
-const { shuffle, capitalize, getTrivia } = require('./../../util/util');
-const Game = require('./game');
+const { shuffle, capitalize, getTrivia } = require('./../../util/Util');
+const Game = require('./Game');
 
 const triviaTime = 15;
 const numbers = ['1', '2', '3', '4'];

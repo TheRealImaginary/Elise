@@ -1,9 +1,9 @@
 const axios = require('axios');
 const winston = require('winston');
 const { RichEmbed } = require('discord.js');
-const Game = require('./game');
+const Game = require('./Game');
 const HangmanCollector = require('../HangmanCollector');
-const { distinct } = require('../../util/util');
+const { distinct } = require('../../util/Util');
 
 const DICTIONARY_APIKEY = process.env.DICTIONARY_APIKEY;
 
