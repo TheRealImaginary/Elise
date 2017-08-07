@@ -70,7 +70,7 @@ module.exports = class Hangman extends Game {
   // Sometimes Message.content will hold old info. Investigate !
   // This was an example word >> œdema. Make sure this doesnt get fetched.
   // MessageEmbed and RichEmbeds have different properties, need to set some properties
-  // by myself.
+  // by myself. (The Library will make them one soon)
   async play(message) {
     await this.getWord(message);
     if (!this.word || this.word.length === 0) {
