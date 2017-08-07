@@ -25,7 +25,7 @@ module.exports = class Song {
      * Video's Duration.
      * @type {number}
      */
-    this.duration = video.durationSeconds ? video.durationSeconds : video.duration / 1000;
+    this.duration = video.durationSeconds;
 
     /**
      * The Guild Member who added added the song.

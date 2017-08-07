@@ -4,7 +4,7 @@
   "description": "A bot for discord.",
   "main": "elise.js",
   "scripts": {
-    "start": "node --harmony elise.js",
+    "start": "node --harmony Elise.js",
     "lint": "node_modules/.bin/eslint ."
   },
   "keywords": [

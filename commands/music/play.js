@@ -3,10 +3,13 @@ const winston = require('winston');
 const Youtube = require('simple-youtube-api');
 const ytdl = require('ytdl-core');
 const { Command } = require('discord.js-commando');
-const { RichEmbed } = require('discord.js');
+
+const MusicQueue = require('../../structures/MusicQueue');
+const Song = require('../../structures/Song');
 
 const api = new Youtube(process.env.YOUTUBE_KEY);
-const youtubeRegex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
+
+const { MAX_QUEUE_SIZE, MAX_SONG_DURATION } = process.env;
 
 module.exports = class Play extends Command {
   constructor(client) {
@@ -16,9 +19,10 @@ module.exports = class Play extends Command {
       autoAliases: false,
       group: 'music',
       memberName: 'play',
-      description: 'Plays or enqueues music',
+      description: 'Plays or enqueues a music from YouTube',
       args: [{
         key: 'song',
+        label: 'link/name',
         prompt: 'What would you like to listen to ?',
         type: 'string',
       }],
@@ -27,149 +31,112 @@ module.exports = class Play extends Command {
   }
 
   async run(message, { song }) {
-    if (this.client.checkMusicQueue(message.member, message.guild)) {
-      const statusMessage = await message.say('Getting Video Info... !');
-      // We can allow index
-      if (/channel/.test(song) || /playlist/.test(song) || /index/.test(song)) {
-        statusMessage.edit('You can only use videos ! Playlists and Channels are not allowed !');
-        return;
-      }
-      try {
-        if (youtubeRegex.test(song)) {
-          const video = await this.getVideo(message.author, song);
-          this.addToQueue(message, statusMessage, video);
-        } else if (!/youtube.com/.test(song)) {
-          const video = await this.getVideoByName(message.author, song);
-          this.addToQueue(message, statusMessage, video);
-        }
-      } catch (err) {
-        if (err.name === 'Live') {
-          statusMessage.edit(err.message);
-        } else if (err.name === 'Too Long') {
-          statusMessage.edit(err.message);
-        } else {
-          statusMessage.edit('An Error Occured Fetching Video Data !');
-        }
-      }
-    } else {
-      message.say('You need to be in a voice channel !');
-    }
-  }
-
-  getVideo(user, song) {
-    return new Promise((resolve, reject) => {
-      api.getVideo(song)
-        .then((video) => {
-          if (video.durationSeconds === 0) {
-            const error = new Error('You cannot play live videos !');
-            error.name = 'Live';
-            reject(error);
-          } else if (video.durationSeconds > 480) {
-            const error = new Error('Video Duration is too long !');
-            error.name = 'Too Long';
-            reject(error);
-          } else {
-            resolve(this.normalize(user, video));
-          }
-        })
-        .catch(reject);
-    });
-  }
-
-  async getVideoByName(user, songName) {
-    const result = (await api.searchVideos(songName, 1))[0];
-    const video = await api.getVideoByID(result.id);
-    return this.normalize(user, video);
-  }
-
-  async addToQueue({ guild, member }, statusMessage, video) {
-    const guildID = guild.id;
-    if (!this.client.addToQueue(guildID, video)) {
-      // statusMessage.edit('Queue is at maximum capacity !');
-      statusMessage.edit('Either the queue is full or you are trying to add a song more than once !');
+    if (!message.member.voiceChannel) {
+      message.reply('You need to be in a voice channel !');
       return;
     }
-    if (!this.client.isMusicPlaying(guildID)) {
-      this.client.setMusicStatus(guildID, true);
+    const musicQueue = this.client.queues.get(message.guild.id)
+      || new MusicQueue(MAX_QUEUE_SIZE);
+    if (message.member.voiceChannel && (musicQueue.connection
+      && musicQueue.connection.channel.id !== message.member.voiceChannel.id)) {
+      message.reply('Music is currently being played in a different Voice Channel !');
+      return;
+    }
+    if (musicQueue.isFull) {
+      message.reply('Current Queue is Full !');
+      return;
+    }
+    const statusMessage = await message.say('Getting Video info...');
+    try {
+      const video = await api.getVideo(song);
+      // Done !
+      this.checkSong(video, message, statusMessage);
+    } catch (error) {
+      // Error, either song is a name or an error occured, so we try to search again.
       try {
-        statusMessage = await statusMessage.edit('Joining Your Channel... !');
-        const connection = await member.voiceChannel.join();
-        this.client.getMusicQueue(guildID).connection = connection;
-        this.play(guildID, statusMessage, video);
+        const result = (await api.searchVideos(song))[0];
+        const video = await api.getVideoByID(result.id);
+        // Done !
+        this.checkSong(video, message, statusMessage);
       } catch (err) {
         this.client.emit('error', err);
-        statusMessage.edit('An Error Occured Joining your channel !');
+        statusMessage.edit('Could not obtain the video info !');
       }
-      return;
     }
-    statusMessage.edit('Added Song to queue !');
   }
 
-  async play(guild, statusMessage, video) {
-    if (!video) {
-      statusMessage.edit('We have ran out of songs !');
-      this.client.getMusicQueue(guild).disconnect();
+  checkSong(video, message, statusMessage) {
+    if (video.durationSeconds === 0) {
+      statusMessage.edit('Cannot play live videos !');
+    } else if (video.durationSeconds > MAX_SONG_DURATION) {
+      statusMessage.edit(`Cannot play songs with duration longer than ${
+        moment.duration(MAX_SONG_DURATION, 'seconds').humanize()}`);
+    } else {
+      this.addSong(video, statusMessage, message);
+    }
+  }
+
+  async addSong(video, statusMessage, { member, guild }) {
+    let queue = this.client.queues.get(guild.id);
+    if (!queue) {
+      queue = new MusicQueue(MAX_QUEUE_SIZE);
+      this.client.queues.set(guild.id, queue);
+    }
+    const song = new Song(video);
+    queue.add(song);
+    if (queue.length === 1) {
+      statusMessage = await statusMessage.edit('Joining Your Channel... !');
+      const connection = await member.voiceChannel.join();
+      queue.connection = connection;
+      this.play(song, statusMessage);
+    }
+  }
+
+  async play(song, statusMessage, guild) {
+    const queue = this.client.queues.get(guild.id);
+    if (!song) {
+      statusMessage.edit('We ran out of songs !');
+      queue.disconnect();
       return;
     }
-    const queue = this.client.getMusicQueue(guild);
     try {
       const connection = queue.connection;
-      statusMessage = await statusMessage.edit('Downloading Music... !');
-      const stream = ytdl(video.url, { quality: 'lowest', filter: 'audioonly' });
-      stream.on('response', async () => {
+      statusMessage = await statusMessage.edit('Downloading Song... !');
+      const stream = ytdl(song.url, { quality: 'lowest', filter: 'audioonly' });
+
+      let downloadError = false;
+
+      stream.once('response', () => {
         winston.info('[ELISE]: Response');
-        statusMessage.edit('', { embed: this.nowPlaying(video) });
-      });
-      stream.on('error', (err) => {
+        statusMessage.edit('', { embed: song.info });
+      }).on('error', (err) => {
+        downloadError = true;
         this.client.emit('error', err);
         statusMessage.edit('An Error Occured downloading the video ! :(');
-      });
-      stream.on('end', () => {
-        winston.info('[ELISE]: Song Ended !');
-      });
-      const dispatcher = connection.playStream(stream);
-      dispatcher.setVolumeLogarithmic(0.25);
-      dispatcher.on('error', (err) => {
-        this.client.emit('error', err);
-        statusMessage.edit('An Error Occured playing song ! :(');
+      }).once('end', () => {
+        winston.info('[ELISE]: Finished Downloading !');
       });
 
-      dispatcher.on('end', async (reason) => {
+      const dispatcher = connection.playStream(stream);
+      dispatcher.setVolumeLogarithmic(0.25);
+
+      dispatcher.on('error', (err) => {
+        if (downloadError) {
+          return;
+        }
+        this.client.emit('error', err);
+        statusMessage.edit('An Error Occured playing song ! :(');
+      }).once('end', async (reason) => {
         if (reason) {
           winston.info(`[ELISE]: Stream Ended because of ${reason}`);
           statusMessage = await statusMessage.channel.send('Shifting Queue... !');
           queue.shift();
-          this.play(guild, statusMessage, queue.song);
+          this.play(guild, statusMessage, queue.first);
         }
       });
     } catch (err) {
       this.client.emit('error', err);
       statusMessage.edit('Error Occured Downloading Video !');
     }
-  }
-
-  nowPlaying(video) {
-    const embed = new RichEmbed();
-    embed.setThumbnail(video.thumbnail);
-    embed.setTitle('__**Now Playing**__');
-    embed.addField('➤Details', `⬧[${video.title}](${video.url})\n⬧${video.duration}`);
-    embed.setColor('#FF0000');
-    embed.setAuthor(video.addedBy.author, video.addedBy.avatar);
-    embed.setFooter(this.client.user.username, this.client.user.displayAvatarURL);
-    embed.setTimestamp(new Date());
-    return embed;
-  }
-
-  normalize(user, video) {
-    return {
-      url: video.url,
-      title: video.title,
-      duration: moment.duration(video.durationSeconds, 'seconds').humanize(),
-      thumbnail: `https://img.youtube.com/vi/${video.id}/hqdefault.jpg`,
-      addedBy: {
-        author: user.tag,
-        avatar: user.displayAvatarURL,
-      },
-    };
   }
 };

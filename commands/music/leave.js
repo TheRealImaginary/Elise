@@ -8,19 +8,18 @@ module.exports = class Leave extends Command {
       autoAliases: false,
       group: 'music',
       memberName: 'leave',
-      description: 'Bot will leave the Voice Channel. Only Bot Owner can use this command !',
+      description: 'Bot will leave the Voice Channel. Only a Bot Owner or a Server Admin can use this command !',
+      guildOnly: true,
     });
   }
 
-  hasPermissions(member) {
+  hasPermission(member) {
     return this.client.isOwner(member) || member.permissions.has('MOVE_MEMBERS');
   }
 
   run(message) {
-    if (this.hasPermissions(message.member)) {
-      if (!this.client.getMusicQueue(message.guild.id).disconnect()) {
-        message.say('We are not playing any music !');
-      }
+    if (!this.client.queues.get(message.guild.id).disconnect()) {
+      message.say('We are not playing any music !');
     } else {
       message.say('You don\'t have enough juice');
     }
