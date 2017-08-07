@@ -18,16 +18,16 @@ module.exports = class Resume extends Command {
   }
 
   run(message) {
-    const connection = this.client.getMusicQueue(message.guild.id).connection;
+    const connection = this.client.queues.get(message.guild.id).connection;
     if (connection) {
       if (connection.dispatcher.paused) {
         connection.dispatcher.resume();
-        message.say(`${message.member.displayName} has resumed the music !`);
+        message.say(`${message.member.user.tag} resumed the music !`);
       } else {
         message.say('Song is not paused !');
       }
     } else {
-      message.say('We arenot playing any music !');
+      message.say('We are not playing any music !');
     }
   }
 };

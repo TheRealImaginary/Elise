@@ -75,20 +75,22 @@ module.exports = class Play extends Command {
       this.addSong(video, statusMessage, message);
     }
   }
-
+  // handle voice channel permissions
   async addSong(video, statusMessage, { member, guild }) {
     let queue = this.client.queues.get(guild.id);
     if (!queue) {
       queue = new MusicQueue(MAX_QUEUE_SIZE);
       this.client.queues.set(guild.id, queue);
     }
-    const song = new Song(video);
+    const song = new Song(video, member.user);
     queue.add(song);
     if (queue.length === 1) {
       statusMessage = await statusMessage.edit('Joining Your Channel... !');
       const connection = await member.voiceChannel.join();
       queue.connection = connection;
-      this.play(song, statusMessage);
+      this.play(song, statusMessage, guild);
+    } else {
+      statusMessage.edit('Added Song to queue !');
     }
   }
 
@@ -131,7 +133,7 @@ module.exports = class Play extends Command {
           winston.info(`[ELISE]: Stream Ended because of ${reason}`);
           statusMessage = await statusMessage.channel.send('Shifting Queue... !');
           queue.shift();
-          this.play(guild, statusMessage, queue.first);
+          this.play(queue.first, statusMessage, guild);
         }
       });
     } catch (err) {

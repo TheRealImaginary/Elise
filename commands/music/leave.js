@@ -13,15 +13,13 @@ module.exports = class Leave extends Command {
     });
   }
 
-  hasPermission(member) {
-    return this.client.isOwner(member) || member.permissions.has('MOVE_MEMBERS');
+  hasPermission(message) {
+    return this.client.isOwner(message.member) || message.member.permissions.has('MOVE_MEMBERS');
   }
 
   run(message) {
     if (!this.client.queues.get(message.guild.id).disconnect()) {
       message.say('We are not playing any music !');
-    } else {
-      message.say('You don\'t have enough juice');
     }
   }
 };
