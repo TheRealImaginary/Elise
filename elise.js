@@ -51,6 +51,7 @@ bot.registry
     ['info', 'Info'],
     ['mod', 'Mod'],
     ['music', 'Music'],
+    ['score', 'Score'],
     ['tags', 'Tags'],
     ['util', 'Util'],
     ['weather', 'Weather'],

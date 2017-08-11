@@ -40,6 +40,18 @@ module.exports = class Scoreboard {
   }
 
   /**
+   * Removes points from the user.
+   * @param {any} userID - The User to penalize.
+   * @param {any} points - The Points to remove.
+   */
+  async penalize(userID, points) {
+    console.log(userID, points);
+    const result = await this.redisClient.hgetAsync('scoreboard', userID) || 0;
+    await this.redisClient.hsetAsync('scoreboard', userID, Math.max(0, parseInt(result, 10) - points));
+    winston.info(`Penalizing user ${userID}`);
+  }
+
+  /**
    * Fetches the Currect Points for a User.
    * @param {string} userID - User's ID.
    * @returns {Promise<number>} Promise that resolves with the Points.
