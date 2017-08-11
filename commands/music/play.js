@@ -75,7 +75,10 @@ module.exports = class Play extends Command {
       this.addSong(video, statusMessage, message);
     }
   }
+
   // handle voice channel permissions
+  // handle duplicate songs
+  // set is playing to true or remove it
   async addSong(video, statusMessage, { member, guild }) {
     let queue = this.client.queues.get(guild.id);
     if (!queue) {
