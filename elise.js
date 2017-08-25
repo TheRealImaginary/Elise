@@ -41,7 +41,7 @@ bot.on('commandError', (command, err, { content }, args) => {
   winston.error(`Error executing command ${command.name} on inputs ${args} with content ${content}`);
 });
 
-bot.on('error', err => winston.error(err.message));
+bot.on('error', err => winston.error(err));
 
 bot.registry
   .registerDefaults()
