@@ -113,6 +113,8 @@ module.exports = class Play extends Command {
       return;
     }
     const queue = this.client.getMusicQueue(guild);
+    console.log(queue);
+    console.log(guild);
     try {
       const connection = queue.connection;
       console.log(connection);
