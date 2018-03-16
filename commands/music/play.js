@@ -95,9 +95,12 @@ module.exports = class Play extends Command {
       try {
         statusMessage = await statusMessage.edit('Joining Your Channel... !');
         const connection = await member.voiceChannel.join();
+        console.log('Joining');
         this.client.getMusicQueue(guildID).connection = connection;
+        console.log(connection);
         this.play(guildID, statusMessage, video);
       } catch (err) {
+        console.log('err');
         this.client.emit('error', err);
         statusMessage.edit('An Error Occured Joining your channel !');
       }
@@ -113,11 +116,9 @@ module.exports = class Play extends Command {
       return;
     }
     const queue = this.client.getMusicQueue(guild);
-    console.log(queue);
-    console.log(guild);
     try {
       const connection = queue.connection;
-      console.log(connection);
+      // console.log(connection);
       statusMessage = await statusMessage.edit('Downloading Music... !');
       const stream = ytdl(video.url, { quality: 'lowest', filter: 'audioonly' });
       stream.on('response', async () => {
