@@ -40,6 +40,7 @@ module.exports = class Play extends Command {
           this.addToQueue(message, statusMessage, video);
         } else if (!/youtube.com/.test(song)) {
           const video = await this.getVideoByName(message.author, song);
+          console.log(video);
           this.addToQueue(message, statusMessage, video);
         }
       } catch (err) {
@@ -114,6 +115,7 @@ module.exports = class Play extends Command {
     const queue = this.client.getMusicQueue(guild);
     try {
       const connection = queue.connection;
+      console.log(connection);
       statusMessage = await statusMessage.edit('Downloading Music... !');
       const stream = ytdl(video.url, { quality: 'lowest', filter: 'audioonly' });
       stream.on('response', async () => {
